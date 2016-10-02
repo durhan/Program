@@ -337,14 +337,14 @@ void testovaci_input()
 
         // udaje o studnach:
     Q[0] =-.005; // m3/s Q<0 cerpani, Q>0 zasakovani
-    Q[1] =-.003; // m3/s
+    Q[1] = .003; // m3/s
     r[0] = r[1] = .125; //m
     R[0] = 160;
     R[1] = 135; //m
     s[0] = 2.5;
     s[1] =-1.5;
 
-    L = 50.0; // m
+    L = 35.0; // m
 
     // udaje o vrstvach:
     z[0] =  0.0; // teren
