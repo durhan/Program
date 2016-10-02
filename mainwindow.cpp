@@ -245,7 +245,7 @@ void MainWindow::on_lineEdit_9_editingFinished()
     }
 }
 
-void MainWindow::on_pushButton_3_clicked() // chceme spocitat a zobrazit hydraulickou vysku
+void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 {
     testovaci_input();
 
@@ -273,8 +273,8 @@ void MainWindow::on_pushButton_3_clicked() // chceme spocitat a zobrazit hydraul
     rez = new QwtPlot(ui->FrameHH);
     rez->setTitle("Řez hydraulické výšky v linii vrtů");
     rez->setCanvasBackground(Qt::white);
-    rez->setAxisScale(QwtPlot::yLeft, z[0], z[N]);
-    rez->setAxisScale(QwtPlot::xBottom, -25 , 75);
+    rez->setAxisScale(QwtPlot::yLeft, H-1, H+1);
+    rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
     rez->insertLegend(new QwtLegend);
 
     QwtPlotCurve *krivka = new QwtPlotCurve("hydraulická výška");
