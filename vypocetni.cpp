@@ -151,7 +151,6 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	double x = x0;
 	double y = y0;
 	double K = getK(z0);
-    double l[2];
 
     unsigned int maxidx = int(10*L/fabs(krok));
 
