@@ -155,9 +155,11 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 
     unsigned int maxidx = int(10*L/fabs(krok));
 
+	double l[2];
+	
 	if (K < 0)
 	{
-        logfile << "track_point: Nepodarilo se najit odpovidajici K." << endl;
+		cerr << "Nepodarilo se najit odpovidajici K." << endl;
 		return;
 	}
 	
@@ -188,7 +190,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "Starting point: [ " << x0 << ", " << y0 << ", " << z0 << "]." << endl;
             return;
         }
-
+		
         if(X->size() > 2) {
         if( sqrt(pow((*X)[X->size()-3]-(*X)[X->size()-1],2) + pow((*Y)[Y->size()-3]-(*Y)[Y->size()-1],2)) < krok) // ah, the evil of wrapping yourself around a watershed!
         {
@@ -344,7 +346,7 @@ void testovaci_input()
     s[0] = 2.5;
     s[1] =-1.5;
 
-    L = 35.0; // m
+    L = 50.0; // m
 
     // udaje o vrstvach:
     z[0] =  0.0; // teren
@@ -408,5 +410,4 @@ void testovaci_input()
     }
 
     H = Z_base - H;
-
 }
