@@ -63,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_17->setValidator(new QDoubleValidator(this));
     ui->lineEdit_18->setValidator(new QDoubleValidator(this));
     ui->lineEdit_19->setValidator(new QDoubleValidator(this));
+    ui->lineEdit_20->setValidator(new QDoubleValidator(this));
+    ui->lineEdit_21->setValidator(new QDoubleValidator(this));
 }
 
 MainWindow::~MainWindow()
@@ -80,8 +82,8 @@ QMessageBox::critical(NULL,"problem",QString::number(N));
 
 void MainWindow::on_pushButton_clicked()
 {
-    readData();
-
+   // readData();
+testovaci_input();
     QGraphicsScene * schema = new QGraphicsScene();
 
     for (int i=0;i<6;i++)
@@ -92,6 +94,28 @@ void MainWindow::on_pushButton_clicked()
 }
     ui->graphicsView->setScene(schema);
     ui->graphicsView->fitInView(schema->sceneRect());
+
+    for (int i=1; i <= N; i++)
+    {
+    rez = new QwtPlot(ui->FrameHH);
+    rez->setTitle("Řez hydraulické výšky v linii vrtů");
+    rez->setCanvasBackground(Qt::white);
+    rez->setAxisScale(QwtPlot::yLeft, z[0], z[N]);
+    rez->setAxisScale(QwtPlot::xBottom, -L/2 , L*1.5);
+    rez->insertLegend(new QwtLegend);
+
+    QwtPlotCurve *vrstva = new QwtPlotCurve("vrstva");
+    //krivka->setSamples( x, rezh, xDim);
+    vrstva->setPen( Qt::red, 1 );
+    vrstva->attach(rez);
+
+    QwtPlotGrid *mrizka = new QwtPlotGrid();
+    mrizka->attach(rez);
+
+    rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
+    rez->show();
+    }
+    
 }
 
 void MainWindow::on_lineEdit_returnPressed()
@@ -135,8 +159,8 @@ void MainWindow::readData()
             r[1] = 0;
 
             // polomery dosahu (odhad, nebo vnucena hodnota
-            R[0] = 0;
-            R[1] = 0;
+            R[0] = 0;//ui->lineEdit_20->text().toDouble();
+            R[1] = 0;//ui->lineEdit_21->text().toDouble();;
 
             // snizeni
             s[0] = 0;
@@ -158,7 +182,25 @@ void MainWindow::readData()
             }
 
             // tohle je moje interni vec, tuhle promennou budu kontrolovat, jestli je true, kdybych si nebyl jist, jestli uz je vsechno nacteno
+            // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
+            double Z_base = z[N];
 
+            for(int i = 0; i < N+1; i++)
+            {
+                z[i] = Z_base - z[i];
+                //cerr << "z[" << i << "] = " << z[i] << endl;
+            }
+
+            for(int i = 0; i < (N+1)/2; i++)
+            {
+                double pom;
+                pom = z[i];
+                z[i] = z[N-i];
+                z[N-i] = pom;
+                //cerr << "z[" << i << "] = " << z[i] << endl;
+            }
+
+            H = Z_base - H;
 }
 
 void MainWindow::on_lineEdit_editingFinished()
@@ -296,7 +338,7 @@ void MainWindow::on_lineEdit_9_cursorPositionChanged(int arg1, int arg2)
     k++;
     // what?
 }
-
+    
 void printout(double x[], int dim) // vypis pole pro manualni debug
 {
     for(int i = 0; i < dim; i++)
@@ -450,12 +492,25 @@ void MainWindow::on_pushButton_7_clicked() // TAB: MAPA: export
     ExportPlot(mapa, "mapa.png");
 }
 
-void MainWindow::on_pushButton_8_clicked()
+void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 {
-   //...
+  //readData();
+testovaci_input();
+  if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
+  {
+      QMessageBox::warning(NULL,"problem","Zadejte vydatnost!");
+      return;
+  }
+
+    s[0]=wellDrawdown(0);
+    s[1]=wellDrawdown(1);
+  ui->lineEdit_13->setText(QString::number(s[0]));
+  ui->lineEdit_16->setText(QString::number(s[1]));
+
 }
 
 void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
+void MainWindow::on_pushButton_9_clicked() //dopočítáme vydatnost
 {
     testovaci_input();
     double krok = .03;
@@ -541,9 +596,45 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
     outfile.close();
 
+  if (ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
+  {
+      QMessageBox::warning(NULL,"problem","Zadejte oba dosahy!");
+              return;
+  }
+
+  if ( ui->lineEdit_11->text().isEmpty() && ui->lineEdit_14->text().isEmpty())
+  {
+      QMessageBox::warning(NULL,"problem","Zadejte jednu vydatnost!");
+      return;
+  }
+
+  if (ui->lineEdit_14->text().isEmpty() && ui->lineEdit_16->text().isEmpty())
+  {
+      QMessageBox::warning(NULL,"problem","Zadejte snizeni ve studni,ve ktere chcete znad vydatnost!");
+      return;
+  }
+
+  if (ui->lineEdit_11->text().isEmpty() && ui->lineEdit_13->text().isEmpty())
+  {
+      QMessageBox::warning(NULL,"problem","Zadejte snizeni ve studni,ve ktere chcete znad vydatnost!");
+      return;
+  }
+
+  if (ui->lineEdit_11->text().isEmpty())
+  {
+      Q[0]=wellYield(0);
+      ui->lineEdit_11->setText(QString::number(Q[0]*1000));
+  }
+
+  if (ui->lineEdit_14->text().isEmpty())
+  {
+      Q[1]=wellYield(1);
+      ui->lineEdit_14->setText(QString::number(Q[1]*1000));
+  }
 }
 
 void MainWindow::on_proudExport_clicked()
+void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
 {
     ExportPlot(grafProudnice,"proudnice.png");
 
