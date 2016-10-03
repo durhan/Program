@@ -510,7 +510,6 @@ testovaci_input();
 }
 
 void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
-void MainWindow::on_pushButton_9_clicked() //dopočítáme vydatnost
 {
     testovaci_input();
     double krok = .03;
@@ -595,7 +594,12 @@ void MainWindow::on_pushButton_9_clicked() //dopočítáme vydatnost
     grafTracer->show();
 
     outfile.close();
+}
 
+//-------------------------------------------------------------------
+
+void MainWindow::on_pushButton_9_clicked() //dopočítáme vydatnost
+{
   if (ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
   {
       QMessageBox::warning(NULL,"problem","Zadejte oba dosahy!");
@@ -634,32 +638,11 @@ void MainWindow::on_pushButton_9_clicked() //dopočítáme vydatnost
 }
 
 void MainWindow::on_proudExport_clicked()
-void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
 {
     ExportPlot(grafProudnice,"proudnice.png");
+}
 
-//    testovaci_input();
-
-//    double x0 = 1;
-//    double y0 = 0;
-//    double z0 = 6;
-
-//    vector<double> X, Y;
-
-//    double t = track_point(x0, y0, z0, .03, &X, &Y);
-
-//    for(int i = 0; i < X.size(); i++)
-//        cout << X[i] << "\t" << Y[i] << endl;
-
-//    cout << "size = " << X.size() << endl;
-//    cout << "max_size = " << X.max_size() << endl;
-
-//    for(int i=1; i < 6; i++)
-//    {
-//        double dx = X[X.size()-i-2]-X[X.size()-i];
-//        double dy = Y[Y.size()-i-2]-Y[Y.size()-i];
-//        double ds = sqrt( dx*dx + dy*dy );
-
-//        cout << X[X.size()-i] << "\t" << Y[Y.size()-i] << "\t" << ds << endl;
-//    }
+void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
+{
+    // empty :(((
 }
