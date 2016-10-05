@@ -125,30 +125,7 @@ void MainWindow::on_lineEdit_returnPressed()
 
 void MainWindow::readData()
 {
-            // nacist data z gui do poli
-
-            // hloubky rozhrani
-
-                    z[0] = 0;
-                    z[1] = ui->lineEdit->text().toDouble();
-                    z[2] = ui->lineEdit_3->text().toDouble();
-                    z[3] = ui->lineEdit_5->text().toDouble();
-                    z[4] = ui->lineEdit_7->text().toDouble();
-                    z[5] = ui->lineEdit_9->text().toDouble();
-
-                    d[0] = z[1];
-                    d[1] = z[2] - z[1];
-                    d[2] = z[3] - z[2];
-                    d[3] = z[4] - z[3];
-                    d[4] = z[5] - z[4];
-
-
-            // hydraulicke vodivosti
-            K[0] = 0;
-            K[1] = 0;
-            K[2] = 0;
-            K[3] = 0;
-            K[4] = 0;
+    readLayers();
 
             // vydatnosti
             Q[0] = 0;
@@ -165,42 +142,6 @@ void MainWindow::readData()
             // snizeni
             s[0] = 0;
             s[1] = 0;
-
-            // vzdalenost mezi studnami
-            L = 0;
-
-            // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
-            H = 0;
-
-            // veci odvozene:
-
-            // transmisivita kolektoru
-            T = 0;
-            for(int i=0; i < N; i++)
-            {
-                    T+= K[i]*d[i];
-            }
-
-            // tohle je moje interni vec, tuhle promennou budu kontrolovat, jestli je true, kdybych si nebyl jist, jestli uz je vsechno nacteno
-            // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
-            double Z_base = z[N];
-
-            for(int i = 0; i < N+1; i++)
-            {
-                z[i] = Z_base - z[i];
-                //cerr << "z[" << i << "] = " << z[i] << endl;
-            }
-
-            for(int i = 0; i < (N+1)/2; i++)
-            {
-                double pom;
-                pom = z[i];
-                z[i] = z[N-i];
-                z[N-i] = pom;
-                //cerr << "z[" << i << "] = " << z[i] << endl;
-            }
-
-            H = Z_base - H;
 }
 
 void MainWindow::on_lineEdit_editingFinished()
@@ -648,4 +589,76 @@ void MainWindow::on_proudExport_clicked()
 void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
 {
     // empty :(((
+}
+
+void MainWindow::readLayers()
+{
+    // nacist data z gui do poli
+
+    // hloubky rozhrani
+
+    z[0] = 0;
+    z[1] = ui->lineEdit->text().toDouble();
+    z[2] = ui->lineEdit_3->text().toDouble();
+    z[3] = ui->lineEdit_5->text().toDouble();
+    z[4] = ui->lineEdit_7->text().toDouble();
+    z[5] = ui->lineEdit_9->text().toDouble();
+
+
+    // hydraulicke vodivosti: ! CIST V ZDOLA NAHORU, ABY BYLA SPRAVNE, AZ SE ZPREHAZEJI Z-KA!
+    K[4] = 0;
+    K[3] = 0;
+    K[2] = 0;
+    K[1] = 0;
+    K[0] = 0;
+
+    // vzdalenost mezi studnami
+    L = 0;
+
+    // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
+    H = 0;
+
+    // veci odvozene:
+
+
+    // tohle je moje interni vec, tuhle promennou budu kontrolovat, jestli je true, kdybych si nebyl jist, jestli uz je vsechno nacteno
+    // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
+    double Z_base = z[N];
+
+    for(int i = 0; i < N+1; i++)
+    {
+        z[i] = Z_base - z[i];
+        //cerr << "z[" << i << "] = " << z[i] << endl;
+    }
+
+    for(int i = 0; i < (N+1)/2; i++)
+    {
+        double pom;
+        pom = z[i];
+        z[i] = z[N-i];
+        z[N-i] = pom;
+        //cerr << "z[" << i << "] = " << z[i] << endl;
+    }
+
+    H = Z_base - H;
+
+    d[0] = z[1];
+    d[1] = z[2] - z[1];
+    d[2] = z[3] - z[2];
+    d[3] = z[4] - z[3];
+    d[4] = z[5] - z[4];
+
+    int n = getLayer(H);
+
+    // transmisivita kolektoru
+    T = 0;
+    for(int i=0; i < n; i++)
+        T+= K[i]*d[i];
+
+    double dT = K[n]*(H - z[n]);
+    if(dT < 0)
+    {
+        logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
+    }
+    T+=dT;
 }
