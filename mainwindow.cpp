@@ -291,8 +291,8 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 {
     testovaci_input();
 
-    if(rez != NULL)
-        delete rez;
+    //if(rez != NULL)
+    //    delete rez;
 
     // rozmery pole: x: 2*L, y: whatever
     int xDim = int(2*L);
@@ -312,12 +312,16 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     }
 
     // a ted to cele vynest:
-    rez = new QwtPlot(ui->FrameHH);
-    rez->setTitle("Řez hydraulické výšky v linii vrtů");
-    rez->setCanvasBackground(Qt::white);
-    rez->setAxisScale(QwtPlot::yLeft, H-1, H+1);
-    rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
-    rez->insertLegend(new QwtLegend);
+    if(rez==NULL)
+    {
+        rez = new QwtPlot(ui->FrameHH);
+        rez->setTitle("Řez hydraulické výšky v linii vrtů");
+        rez->setCanvasBackground(Qt::white);
+        rez->setAxisScale(QwtPlot::yLeft, H-1, H+1);
+        rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
+        rez->insertLegend(new QwtLegend);
+    }
+    rez->detachItems(QwtPlotItem::Rtti_PlotCurve); // zbavi graf vsech...
 
     QwtPlotCurve *krivka = new QwtPlotCurve("hydraulická výška");
     krivka->setSamples( x, rezh, xDim);
@@ -329,7 +333,6 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
     rez->show();
-
 }
 
 void MainWindow::on_lineEdit_9_cursorPositionChanged(int arg1, int arg2)
