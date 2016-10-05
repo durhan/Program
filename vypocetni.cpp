@@ -14,12 +14,13 @@ double L, T, H;
 ofstream logfile;//("log.txt",ios_base::ate);
 
 double getK(double Z);
-int getLayer(double Z);
 void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
 double Integral(double h);
 // void solve_quadratic(double a, double b, double c, double *x1, double *x2);
 double GirPot(double r1, double r2);
+void gradh(double x, double y, double *dhdx, double *dhdy);
+void v(double x, double y, double k, double *vx, double *vy);
 
 int sgn(double x)
 {

@@ -56,6 +56,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     void readData();
+    void readLayers();
 };
 
 #endif // MAINWINDOW_H
