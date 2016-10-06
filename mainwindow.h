@@ -57,6 +57,7 @@ private:
     Ui::MainWindow *ui;
     void readData();
     void readLayers();
+    void readWells();
 };
 
 #endif // MAINWINDOW_H

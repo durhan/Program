@@ -455,7 +455,8 @@ testovaci_input();
 
 void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 {
-    testovaci_input();
+    readLayers();
+
     double krok = .03;
 
     // zaznamenavam cele proudnice plus casy
@@ -606,22 +607,20 @@ void MainWindow::readLayers()
 
 
     // hydraulicke vodivosti: ! CIST V ZDOLA NAHORU, ABY BYLA SPRAVNE, AZ SE ZPREHAZEJI Z-KA!
-    K[4] = 0;
-    K[3] = 0;
-    K[2] = 0;
-    K[1] = 0;
-    K[0] = 0;
+    K[4] = ui->lineEdit_2->text().toDouble();
+    K[3] = ui->lineEdit_4->text().toDouble();
+    K[2] = ui->lineEdit_6->text().toDouble();
+    K[1] = ui->lineEdit_8->text().toDouble();
+    K[0] = ui->lineEdit_10->text().toDouble();
 
     // vzdalenost mezi studnami
-    L = 0;
+    L = ui->lineEdit_17->text().toDouble();
 
     // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
-    H = 0;
+    H = ui->lineEdit_18->text().toDouble();
 
     // veci odvozene:
 
-
-    // tohle je moje interni vec, tuhle promennou budu kontrolovat, jestli je true, kdybych si nebyl jist, jestli uz je vsechno nacteno
     // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
     double Z_base = z[N];
 
@@ -642,6 +641,7 @@ void MainWindow::readLayers()
 
     H = Z_base - H;
 
+    // mocnosti vrstev
     d[0] = z[1];
     d[1] = z[2] - z[1];
     d[2] = z[3] - z[2];
@@ -661,4 +661,9 @@ void MainWindow::readLayers()
         logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
     }
     T+=dT;
+}
+
+void MainWindow::readWells()
+{
+
 }
