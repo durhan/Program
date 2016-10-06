@@ -594,9 +594,6 @@ void MainWindow::readLayers()
     z[4] = ui->lineEdit_7->text().toDouble();
     z[5] = ui->lineEdit_9->text().toDouble();
 
-    cerr << "N = " << N << endl;
-
-
     // hydraulicke vodivosti: ! CIST V ZDOLA NAHORU, ABY BYLA SPRAVNE, AZ SE ZPREHAZEJI Z-KA!
     K[4] = ui->lineEdit_2->text().toDouble();
     K[3] = ui->lineEdit_4->text().toDouble();
@@ -611,7 +608,8 @@ void MainWindow::readLayers()
 
     // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
     double Z_base = z[N];
-
+    cerr << "N = " << N << endl;
+    cerr << "N = " << N << endl;
     for(int i = 0; i < N+1; i++)
     {
         z[i] = Z_base - z[i];
