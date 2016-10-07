@@ -9,3 +9,4 @@ Qwt-6.1.3
 *.pri
 Program.pro.user.9f2fbdb
 *.user
+*.autosave
