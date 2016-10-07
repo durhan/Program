@@ -79,7 +79,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-QMessageBox::critical(NULL,"problem",QString::number(N));
+QMessageBox::critical(NULL,"problem",QString::number(N)); // tohle asi nahradi smysluplny obsah... nebo to pujde pryc i s tlacitkem
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -218,8 +218,8 @@ void MainWindow::on_lineEdit_9_editingFinished()
 
 void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 {
-    readLayers();
-    readWells();
+    if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
+        return;
 
     //if(rez != NULL)
     //    delete rez;
@@ -280,6 +280,8 @@ void printout(double x[], int dim) // vypis pole pro manualni debug
 
 void MainWindow::on_pushButton_4_clicked() // TAB: REZ HYDRAULICKE VYSKY, zmena mezi na svisle ose
 {
+    if(rez==NULL)
+        return;
 
     double ymin = ui->hhymin->text().toDouble();
     double ymax = ui->hhymax->text().toDouble();
@@ -349,7 +351,8 @@ void ExportPlot(QwtPlot *arg, const char *filename)
 
 void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
 {
-    testovaci_input();
+    if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
+        return;
 
     if(mapa !=NULL)
         delete mapa;
@@ -431,7 +434,7 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 testovaci_input();
   if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"problem","Zadejte vydatnost!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte vydatnost!");
       return;
   }
 
@@ -444,7 +447,8 @@ testovaci_input();
 
 void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 {
-    readLayers();
+    if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
+        return;
 
     double krok = .03;
 
@@ -534,27 +538,30 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
 void MainWindow::on_pushButton_9_clicked() //dopočítáme vydatnost
 {
+    if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
+        return;
+
   if (ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"problem","Zadejte oba dosahy!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte oba dosahy!");
               return;
   }
 
   if ( ui->lineEdit_11->text().isEmpty() && ui->lineEdit_14->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"problem","Zadejte jednu vydatnost!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte jednu vydatnost!");
       return;
   }
 
   if (ui->lineEdit_14->text().isEmpty() && ui->lineEdit_16->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"problem","Zadejte snizeni ve studni,ve ktere chcete znad vydatnost!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte snížení ve studni, ve které chcete znát vydatnost!");
       return;
   }
 
   if (ui->lineEdit_11->text().isEmpty() && ui->lineEdit_13->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"problem","Zadejte snizeni ve studni,ve ktere chcete znad vydatnost!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte snížení ve studni, ve které chcete znát vydatnost!");
       return;
   }
 
@@ -581,32 +588,58 @@ void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
     // empty :(((
 }
 
-void MainWindow::readLayers()
+bool MainWindow::readLayers()
 {
     // nacist data z gui do poli
+    if(N==0)
+    {
+        QMessageBox::critical(NULL,"Chyba!", "Co takhle zadat alespoň nějaké údaje o vrstvách?");
+        return false;
+    }
+
+    QLocale loc(QLocale::system());
 
     // hloubky rozhrani
-
     z[0] = 0;
-    z[1] = ui->lineEdit->text().toDouble();
-    z[2] = ui->lineEdit_3->text().toDouble();
-    z[3] = ui->lineEdit_5->text().toDouble();
-    z[4] = ui->lineEdit_7->text().toDouble();
-    z[5] = ui->lineEdit_9->text().toDouble();
+    z[1] = loc.toDouble(ui->lineEdit->text());
+    z[2] = loc.toDouble(ui->lineEdit_3->text());
+    z[3] = loc.toDouble(ui->lineEdit_5->text());
+    z[4] = loc.toDouble(ui->lineEdit_7->text());
+    z[5] = loc.toDouble(ui->lineEdit_9->text());
 
-    cerr << "N = " << N << endl;
-
+    for(int i = 1; i < N; i++)
+    {
+        if(z[i] < .001)
+        {
+            QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst všechny hodnoty z!");
+            return false;
+        }
+    }
 
     // hydraulicke vodivosti: ! CIST V ZDOLA NAHORU, ABY BYLA SPRAVNE, AZ SE ZPREHAZEJI Z-KA!
-    K[4] = ui->lineEdit_2->text().toDouble();
-    K[3] = ui->lineEdit_4->text().toDouble();
-    K[2] = ui->lineEdit_6->text().toDouble();
-    K[1] = ui->lineEdit_8->text().toDouble();
-    K[0] = ui->lineEdit_10->text().toDouble();
+    K[4] = loc.toDouble(ui->lineEdit_2->text());
+    K[3] = loc.toDouble(ui->lineEdit_4->text());
+    K[2] = loc.toDouble(ui->lineEdit_6->text());
+    K[1] = loc.toDouble(ui->lineEdit_8->text());
+    K[0] = loc.toDouble(ui->lineEdit_10->text());
+
+    for(int i = 4; i > 4-N; i--)
+    {
+        if(K[i] < 1e-14) // mensi K uz snad nikdo nezada
+        {
+            QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst všechny hodnoty K!");
+            return false;
+        }
+    }
 
     // vzdalenost mezi studnami
-    L = ui->lineEdit_17->text().toDouble();
+    L = loc.toDouble(ui->lineEdit_17->text());
 
+    if(L < .001)
+    {
+        QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst hodnotu L!");
+        return false;
+    }
     // veci odvozene:
 
     // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
@@ -628,7 +661,14 @@ void MainWindow::readLayers()
     }
 
     // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
-    H = Z_base - ui->lineEdit_18->text().toDouble();
+    H = loc.toDouble(ui->lineEdit_18->text());
+    if(H < .000001)
+    {
+        QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
+        return false;
+    }
+
+    H = Z_base - H;
 
     // mocnosti vrstev
     d[0] = z[1];
@@ -638,6 +678,9 @@ void MainWindow::readLayers()
     d[4] = z[5] - z[4];
 
     int n = getLayer(H);
+    // pripad hodnoty H nad terenem, tj. pocitame transmisivitu pres vsechny vrstvy:
+    if(n==-1)
+        n = N;
 
     // transmisivita kolektoru
     T = 0;
@@ -650,23 +693,42 @@ void MainWindow::readLayers()
         logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
     }
     T+=dT;
+
+    return true;
 }
 
-void MainWindow::readWells()
+bool MainWindow::readWells()
 {
-    // vydatnosti
-    Q[0] = ui->lineEdit_11->text().toDouble();
-    Q[1] = ui->lineEdit_17->text().toDouble();
+    QLocale loc(QLocale::system());
 
-    // polomery studni
-    r[0] = ui->lineEdit_12->text().toDouble();
-    r[1] = ui->lineEdit_15->text().toDouble();
+    // vydatnosti - do form se zadavaji l/s
+    Q[0] = loc.toDouble(ui->lineEdit_11->text())/1000; // s prevodem na m3/s
+    Q[1] = loc.toDouble(ui->lineEdit_14->text())/1000;
 
-    // polomery dosahu (odhad, nebo vnucena hodnota
-    R[0] = ui->lineEdit_20->text().toDouble();
-    R[1] = ui->lineEdit_21->text().toDouble();;
+    if((Q[0] < .001) && (Q[1] < .001))
+    {
+        QMessageBox::critical(NULL,"Chyba!","Musí být zadaná alespoň jedna vydatnost (druhá se dá spočítat, pokud pro ni zadáte snížení).");
+        return false;
+    }
+
+    // polomery studni - do form se zadavaji v m
+    r[0] = loc.toDouble(ui->lineEdit_12->text());
+    r[1] = loc.toDouble(ui->lineEdit_15->text());
+
+    if((r[0] < .001) || (r[1] < .001))
+    {
+        QMessageBox::critical(NULL,"Chyba!","Musejí být zadané průměry obou studní.");
+        return false;
+    }
+
+    // polomery dosahu (odhad, nebo vnucena hodnota]
+    R[0] = loc.toDouble(ui->lineEdit_20->text());
+    R[1] = loc.toDouble(ui->lineEdit_21->text());
 
     // snizeni
-    s[0] = ui->lineEdit_13->text().toDouble();
-    s[1] = ui->lineEdit_16->text().toDouble();
+    s[0] = loc.toDouble(ui->lineEdit_13->text());
+    s[1] = loc.toDouble(ui->lineEdit_16->text());
+
+    return true;
 }
+
