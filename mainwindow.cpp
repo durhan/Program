@@ -14,6 +14,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
+#include <qwt_scale_widget.h>
 
 #include<iostream>
 
@@ -247,8 +248,10 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
         rez = new QwtPlot(ui->FrameHH);
         rez->setTitle("Řez hydraulické výšky v linii vrtů");
         rez->setCanvasBackground(Qt::white);
-        rez->setAxisScale(QwtPlot::yLeft, H-1, H+1);
         rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
+        rez->setAxisTitle(QwtPlot::xBottom,"x[m]");
+        rez->setAxisScale(QwtPlot::yLeft, H-1, H+1);
+        rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
         rez->insertLegend(new QwtLegend);
     }
     rez->detachItems(QwtPlotItem::Rtti_PlotCurve); // zbavi graf vsech...
@@ -259,6 +262,7 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     krivka->attach(rez);
 
     QwtPlotGrid *mrizka = new QwtPlotGrid();
+    mrizka->setPen(Qt::gray,1.0,Qt::DotLine);
     mrizka->attach(rez);
 
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
@@ -354,7 +358,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
 
-    if(mapa !=NULL)
+    if(mapa != NULL)
         delete mapa;
 
     mapa = new QwtPlot(ui->widgetMapa);
@@ -391,36 +395,54 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     QwtPlotSpectrogram *graf = new QwtPlotSpectrogram("Hydraulická výška");
     graf->setRenderThreadCount(4);
     graf->setCachePolicy(QwtPlotRasterItem::PaintCache);
-
-    //kontury
-    QList<double> contourLevels;
-    for ( double level = zmin; level < zmax + .1; level += (zmax-zmin)/10 )
-        contourLevels += level;
-    graf->setContourLevels( contourLevels );
-
+    graf->setDisplayMode(QwtPlotSpectrogram::ContourMode, false);
+    graf->setDisplayMode(QwtPlotSpectrogram::ImageMode, true);
     graf->setData(obsah);
     graf->attach(mapa);
 
-    //barvy
     QwtLinearColorMap *barvy = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB);
-    //barvy->addColorStop(H-.05,Qt::darkGreen);
-    //barvy->addColorStop(H+.05,Qt::darkGreen);
     graf->setColorMap(barvy);
-    graf->setDisplayMode( QwtPlotSpectrogram::ContourMode);
 
-    //_
+    //kontury ----------------------------------------------------------
+    // a zvlast na kontury, aby exit neprotestoval...
+    SpectrogramData *obsah2 = new SpectrogramData();
+    obsah2->setInterval( Qt::XAxis, QwtInterval( xmin, xmax ) );
+    obsah2->setInterval( Qt::YAxis, QwtInterval( ymin, ymax ) );
+    obsah2->setInterval( Qt::ZAxis, QwtInterval( zmin, zmax ) );
+
+    QwtPlotSpectrogram *kontury = new QwtPlotSpectrogram("Hydroizohypsy");
+    kontury->setRenderThreadCount(4);
+    kontury->setCachePolicy(QwtPlotRasterItem::PaintCache);
+    kontury->setDisplayMode(QwtPlotSpectrogram::ContourMode,true);
+    kontury->setDisplayMode(QwtPlotSpectrogram::ImageMode, false);
+
+    QList<double> contourLevels;
+    for ( double level = ceil(10*zmin)/10; level < zmax + .05; level += .1 ) // puvodni kousek, kdyby se zas hodil: (zmax-zmin)/10
+        contourLevels += level;
+    kontury->setContourLevels( contourLevels );
+    kontury->setDefaultContourPen(QPen(Qt::NoPen)); //Qt::NoPen
+    kontury->setData(obsah2);
+    kontury->attach(mapa);
+
+    QwtLinearColorMap *barvy_kontur = new QwtLinearColorMap(Qt::green, Qt::darkGreen, QwtColorMap::RGB);    //barvy->addColorStop(H-.05,Qt::darkGreen);
+    kontury->setColorMap(barvy_kontur);
+
+    // legenda -----------------------------------------------------------
     mapa->setAxisScale( QwtPlot::yRight, zmin, zmax);
     mapa->enableAxis(QwtPlot::yRight);
+    QwtLinearColorMap *barvy2 = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB); // argh! podruhe ta sama QwtColorMap, ptz kopirovaci konstruktor je private a pouzit znova prvni mapu crashlo Skvost pri ukoncovani!
+    mapa->axisWidget(QwtPlot::yRight)->setColorMap(graf->data()->interval(Qt::ZAxis), barvy2);
+    mapa->axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
+    mapa->setAxisTitle(QwtPlot::yRight, "h [m]");
 
+    // rozsah na osach ---------------------------------------------------
     mapa->setAxisScale(QwtPlot::xBottom, xmin, xmax);
+    mapa->setAxisTitle(QwtPlot::xBottom, "x [m]");
     mapa->setAxisScale(QwtPlot::yLeft, ymin, ymax);
-    //mapa->setAxisAutoScale(QwtPlot::yLeft);
-    //mapa->setAxisAutoScale(QwtPlot::xBottom);
+    mapa->setAxisTitle(QwtPlot::yLeft, "y [m]");
 
     mapa->resize(ui->widgetMapa->width(), ui->widgetMapa->height());
     mapa->show();
-
-
 }
 
 void MainWindow::on_pushButton_7_clicked() // TAB: MAPA: export
@@ -430,8 +452,9 @@ void MainWindow::on_pushButton_7_clicked() // TAB: MAPA: export
 
 void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 {
-  //readData();
-testovaci_input();
+    if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
+        return;
+
   if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
   {
       QMessageBox::warning(NULL,"Chyba!","Zadejte vydatnost!");
@@ -520,7 +543,9 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
     double pom = 1.0*grafProudnice->parentWidget()->height()/grafProudnice->parentWidget()->width();
     grafProudnice->setAxisScale(QwtPlot::xBottom, -L, 2*L);
+    grafProudnice->setAxisTitle(QwtPlot::xBottom,"x [m]");
     grafProudnice->setAxisScale(QwtPlot::yLeft, -L*1.5*pom, L*1.5*pom);
+    grafProudnice->setAxisTitle(QwtPlot::yLeft,"y [m]");
     grafProudnice->resize(grafProudnice->parentWidget()->width(),grafProudnice->parentWidget()->height());
 
     grafProudnice->show();
