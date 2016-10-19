@@ -105,7 +105,7 @@ double GirPot(double r1, double r2)
 {
     if((sgn(r1) < 1) || (sgn(r2) < 1))
     {
-        logfile << "GirPot: zaporny argument!" << endl;
+        logfile << "GirPot: error: nekladny argument!" << endl;
         return 0.0;
     }
 
@@ -148,6 +148,15 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	X->clear();
 	Y->clear();
 	*T = 0;
+
+    if(!logfile.is_open())
+        logfile.open("log.txt",ios_base::app);
+
+    if(fabs(krok) == 0)
+    {
+        logfile << "track_point: varovani: krok = 0 (asi je Q = 0)." << endl;
+        return;
+    }
 	
 	double x = x0;
 	double y = y0;
@@ -159,7 +168,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	
 	if (K < 0)
 	{
-		cerr << "Nepodarilo se najit odpovidajici K." << endl;
+        logfile << "track_point: error: Nepodarilo se najit odpovidajici K." << endl;
 		return;
 	}
 	
@@ -170,8 +179,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 		double vx, vy;
 		v(x, y, K, &vx, &vy); // slozky obj. hustoty toku
 		double vel = sqrt(vx*vx+vy*vy);
-		double dt = krok / vel; // skalovat vektor v na delku kroku
-        if(dt>3e7) // kdyz krok urazi za rok...
+        if(vel < fabs(krok)/(3600*24*365.25)) // kdyz krok urazi za rok...
         {
             logfile << "track_point: trajectory terminated: negligible flow" << endl;
             logfile << "x = " << x << endl;
@@ -180,6 +188,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "Starting point: [ " << x0 << ", " << y0  << ", " << z0 << "]." << endl;
             return;
         }
+
+		double dt = krok / vel; // skalovat vektor v na delku kroku
 
         if((X->size() > maxidx) || (X->size() == X->max_size()))
         {
@@ -191,6 +201,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             return;
         }
 		
+
         if(X->size() > 2) {
         if( sqrt(pow((*X)[X->size()-3]-(*X)[X->size()-1],2) + pow((*Y)[Y->size()-3]-(*Y)[Y->size()-1],2)) < krok) // ah, the evil of wrapping yourself around a watershed!
         {
@@ -372,25 +383,7 @@ void testovaci_input()
     H = 4.0; // hloubka hpv
 
     // test logfile
-    logfile << "I N P U T   D A T A" << endl << endl;
-    for(int i = 0; i < 2; i++)
-    {
-        logfile << "Studna c. " << i+1 << endl;
-        logfile << "Q[" << i+1 <<"] = " << Q[i] << " m3/s" << endl;
-        logfile << "s[" << i+1 <<"] = " << s[i] << " m" << endl;
-        logfile << "r[" << i+1 <<"] = " << r[i] << " m" << endl;
-        logfile << "R[" << i+1 <<"] = " << R[i] << " m" << endl << endl;
-    }
 
-    logfile << "Hydrogeologický profil:" << endl;
-    logfile << "z[0] = " << z[0] << " m" << endl;
-    for(int i = 0; i < N; i++)
-    {
-        logfile << "K[" << i+1 <<"] = " << K[i] << " m/s" << endl;
-        logfile << "z[" << i+1 <<"] = " << z[i+1] << " m" << endl;
-    }
-    logfile << endl << "Puvodni/prirozena hpv: H = " << H << " m" << endl;
-    logfile.flush();
     // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
     double Z_base = z[N];
 
@@ -410,4 +403,33 @@ void testovaci_input()
     }
 
     H = Z_base - H;
+}
+
+void logInput()
+{
+    if(!logfile.is_open())
+        logfile.open("log.txt",ios_base::app);
+
+    logfile << "I N P U T   D A T A - - - - - - - - - - - - - - - - - -" << endl << __DATE__ << " " <<__TIME__ << endl << endl;
+    for(int i = 0; i < 2; i++)
+    {
+        logfile << "Studna c. " << i+1 << endl;
+        logfile << "Q[" << i+1 <<"] = " << Q[i] << " m3/s" << endl;
+        logfile << "s[" << i+1 <<"] = " << s[i] << " m" << endl;
+        logfile << "r[" << i+1 <<"] = " << r[i] << " m" << endl;
+        logfile << "R[" << i+1 <<"] = " << R[i] << " m" << endl << endl;
+    }
+
+    logfile << "Hydrogeologický profil (zdola nahoru, z=0 je podloží):" << endl;
+    logfile << "Počet načtených vrstev: N = " << N << endl << endl;
+    logfile << "z[0] = " << z[0] << " m" << endl;
+    for(int i = 0; i < N; i++)
+    {
+        logfile << "K[" << i+1 <<"] = " << K[i] << " m/s" << endl;
+        logfile << "z[" << i+1 <<"] = " << z[i+1] << " m" << endl;
+    }
+    logfile << endl << "Puvodni/prirozena hpv: H = " << H << " m" << endl;
+
+    logfile << endl;
+    logfile.flush();
 }

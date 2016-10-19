@@ -58,6 +58,7 @@ private:
     void readData();
     bool readLayers(); // nacte udaje o vrstvach a vzdalenost studni; spocita transmisivitu
     bool readWells();  // nacte udaje o studnach
+    int readN();       // zjistit pocet vrstev - znova a lepe
 };
 
 #endif // MAINWINDOW_H
