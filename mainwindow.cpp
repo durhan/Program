@@ -14,7 +14,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
-
+#include <qwt_scale_widget.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_samples.h>
 #include <qwt_plot_barchart.h>
@@ -86,7 +86,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-QMessageBox::critical(NULL,"problem",QString::number(N));
+QMessageBox::critical(NULL,"problem",QString::number(N)); // tohle asi nahradi smysluplny obsah... nebo to pujde pryc i s tlacitkem
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -98,14 +98,14 @@ void MainWindow::on_pushButton_clicked()
 
     for (int i=0;i<6;i++)
     {
-    QGraphicsLineItem * hloubka = new QGraphicsLineItem();
-    hloubka->setLine(0,z[i],100,z[i]);
-    schema->addItem(hloubka);
-}
+        QGraphicsLineItem * hloubka = new QGraphicsLineItem();
+        hloubka->setLine(0,z[i],100,z[i]);
+        schema->addItem(hloubka);
+    }
     ui->graphicsView->setScene(schema);
     ui->graphicsView->fitInView(schema->sceneRect());
     //-------udelame to vse jako histogram
-    // a to nas rozesmeje
+
 
    rez = new QwtPlot(ui->FrameHH);
    rez ->setTitle("geologicke vrstvy");
@@ -300,6 +300,7 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     mrizka->attach(rez);
 
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
+    rez->replot();
     rez->show();
 }
 
@@ -405,7 +406,10 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     graf->setData(obsah);
     graf->attach(mapa);
 
+    //barvy
     QwtLinearColorMap *barvy = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB);
+    //barvy->addColorStop(H-.05,Qt::darkGreen);
+    //barvy->addColorStop(H+.05,Qt::darkGreen);
     graf->setColorMap(barvy);
 
     //kontury ----------------------------------------------------------
@@ -433,6 +437,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     kontury->setColorMap(barvy_kontur);
 
     // legenda -----------------------------------------------------------
+    //_
     mapa->setAxisScale( QwtPlot::yRight, zmin, zmax);
     mapa->enableAxis(QwtPlot::yRight);
     QwtLinearColorMap *barvy2 = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB); // argh! podruhe ta sama QwtColorMap, ptz kopirovaci konstruktor je private a pouzit znova prvni mapu crashlo Skvost pri ukoncovani!
@@ -729,9 +734,8 @@ bool MainWindow::readLayers()
     d[4] = z[5] - z[4];
 
     int n = getLayer(H);
-    cerr << "n = " << n << endl;
 
-    // pripad hodnoty H nad terenem, tj. pocitame transmisivitu pres vsechny vrstvy:
+    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
     if(n==-1)
         n = N;
 

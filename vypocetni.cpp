@@ -57,8 +57,6 @@ double wellDrawdown(int idx)
         logfile << "wellDrawdown: bad parameter value!" << endl;
         return 0.0;
     }
-    cout << "H = " << H << endl;
-    cout << "h = " << hydraulic_head(fabs(idx*L - r[idx]),0) << endl;
     return (H - hydraulic_head(fabs(idx*L - r[idx]),0)); // mwahaha! ... :) vyuzivam toho, ze studna[0] ma vzdycky souradnice [0,0] a druha [L,0]
 }
 
@@ -74,28 +72,22 @@ double hydraulic_head(double x, double y)
     if(r2 < r[1])
         return hydraulic_head(L+r[1],0);
 
-//	double I0 = Integral(0);
-    double Gh = GirPot(r1, r2);// - I0; // vyzaduje Q-cka
+    if((r1 > R[0]) && (r2 > R[1]))
+        return H;
+
+    double Gh = GirPot(r1, r2); // vyzaduje Q-cka
     
-    if(Gh == 0)
+    if(Gh >= 0)
         return 0;
     
-	double GH = Integral(H);// - I0;
+    //double GH = Integral(H);
 
-    //cout << "Gh = " << Gh << endl;
-	double h_odhad;// = Gh/GH * H;
-/*	double h_pom = H;
-	double alfa = 0.6; // tlumic kroku
-*/
-	double a,b;
-    
-	if(Gh>0) {
-        a = -500;
-        b = 0; }
-    
-    if(Gh<0) {
-        a = 0;
-        b = 500; }
+
+    double h_odhad;
+    double a,b;
+
+    a = 0;
+    b = 50;
 
     double sa = sgn(Gh - Integral(a));
     double sb = sgn(Gh - Integral(b));
@@ -110,8 +102,8 @@ double hydraulic_head(double x, double y)
         if( sgn(fh) == sb )
             b = h_odhad;
 
-	} while(fabs(b-a) > 1e-4); // hyd. vyska s chybou .5 mm musi stacit kazdymu
-	//cout << "Integral(h_odhad) = " << Integral(h_odhad) << endl;
+    } while(fabs(b-a) > 1e-4); // hyd. vyska s chybou .1 mm musi stacit kazdymu
+
 	return h_odhad;
 }
 
@@ -310,12 +302,7 @@ double Integral(double h)
 			b = h;
 			konec = true;
 		}
-/*		cout << "N = " << N << endl;
-		cout << "a = " << a << endl;
-        cout << "b = " << b << endl;
-        cout << "h = " << h << endl;
-        cout << "K[i] = " << K[i] << endl;
-*/
+
 		Pot+= IntegralOverOneLayer(a,b,K[i],h);
 
 		if (konec) break;
@@ -380,20 +367,13 @@ void testovaci_input()
         cout << "Logfile is NOT open." << endl;
 
         // udaje o studnach:
-    Q[0] =-.0005; // m3/s Q<0 cerpani, Q>0 zasakovani
+    Q[0] =-.005; // m3/s Q<0 cerpani, Q>0 zasakovani
     Q[1] = .003; // m3/s
     r[0] = r[1] = .125; //m
-<<<<<<< HEAD
-    R[0] = 160;
-    R[1] = 135; //m
-    s[0] = 2.5;
-    s[1] =-1.5;
-=======
     R[0] = 100;
     R[1] = 60; //m
     s[0] = .43;
     s[1] =-.2;
->>>>>>> origin/master
 
     L = 50.0; // m
 
