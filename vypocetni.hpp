@@ -23,4 +23,5 @@ double wellYield(int idx);
 double wellDrawdown(int idx);
 int sgn(double x);
 int getLayer(double Z);
+void logInput();
 #endif
