@@ -105,7 +105,7 @@ void MainWindow::on_pushButton_clicked()
     ui->graphicsView->setScene(schema);
     ui->graphicsView->fitInView(schema->sceneRect());
     //-------udelame to vse jako histogram
-
+    // a to nas rozesmeje
 
    rez = new QwtPlot(ui->FrameHH);
    rez ->setTitle("geologicke vrstvy");
