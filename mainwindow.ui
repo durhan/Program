@@ -220,12 +220,6 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-<<<<<<< HEAD
-=======
-            <property name="text">
-             <string/>
-            </property>
->>>>>>> origin/master
            </widget>
           </item>
           <item>
@@ -247,12 +241,6 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-<<<<<<< HEAD
-=======
-            <property name="text">
-             <string/>
-            </property>
->>>>>>> origin/master
            </widget>
           </item>
           <item>
@@ -278,12 +266,6 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-<<<<<<< HEAD
-=======
-            <property name="text">
-             <string/>
-            </property>
->>>>>>> origin/master
             <property name="frame">
              <bool>true</bool>
             </property>
@@ -311,12 +293,6 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-<<<<<<< HEAD
-=======
-            <property name="text">
-             <string/>
-            </property>
->>>>>>> origin/master
            </widget>
           </item>
           <item>
@@ -343,7 +319,7 @@
        <rect>
         <x>370</x>
         <y>10</y>
-        <width>751</width>
+        <width>661</width>
         <height>271</height>
        </rect>
       </property>
@@ -355,7 +331,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>701</width>
+         <width>641</width>
          <height>181</height>
         </rect>
        </property>
@@ -377,7 +353,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Vydatnosti&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Vydatnost:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -387,7 +363,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Snížení&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Snížení:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -397,7 +373,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Poloměry vrtů&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Poloměry vrtů:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -407,7 +383,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Dosahy kuželů&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Dosahy&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -435,7 +411,7 @@
           <item>
            <widget class="QLabel" name="label_27">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;s&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;s1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -455,25 +431,17 @@
           <item>
            <widget class="QLabel" name="label_25">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;D&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;r1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item>
-<<<<<<< HEAD
            <widget class="QLineEdit" name="lineEdit_12"/>
-=======
-           <widget class="QLineEdit" name="lineEdit_12">
-            <property name="text">
-             <string>250</string>
-            </property>
-           </widget>
->>>>>>> origin/master
           </item>
           <item>
            <widget class="QLabel" name="label_26">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mm R&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>m</string>
             </property>
            </widget>
           </item>
@@ -511,7 +479,7 @@
           <item>
            <widget class="QLabel" name="label_33">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;s&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;s2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -528,25 +496,17 @@
           <item>
            <widget class="QLabel" name="label_31">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;D&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;r2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item>
-<<<<<<< HEAD
            <widget class="QLineEdit" name="lineEdit_15"/>
-=======
-           <widget class="QLineEdit" name="lineEdit_15">
-            <property name="text">
-             <string>250</string>
-            </property>
-           </widget>
->>>>>>> origin/master
           </item>
           <item>
            <widget class="QLabel" name="label_32">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mm R&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>m</string>
             </property>
            </widget>
           </item>

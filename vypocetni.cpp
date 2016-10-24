@@ -19,6 +19,8 @@ void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
 double Integral(double h);
 double GirPot(double r1, double r2);
+void gradh(double x, double y, double *dhdx, double *dhdy);
+void v(double x, double y, double k, double *vx, double *vy);
 
 int sgn(double x)
 {
