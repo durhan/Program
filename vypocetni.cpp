@@ -14,6 +14,7 @@ double L, T, H;
 ofstream logfile;//("log.txt",ios_base::ate);
 
 double getK(double Z);
+int getLayer(double Z);
 void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
 double Integral(double h);
