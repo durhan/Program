@@ -14,7 +14,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
-
+#include <qwt_scale_widget.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_samples.h>
 #include <qwt_plot_barchart.h>
