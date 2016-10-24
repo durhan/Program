@@ -14,11 +14,16 @@
 #include <qwt_legend.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
-#include <qwt_scale_widget.h>
+
+#include <qwt_plot_histogram.h>
+#include <qwt_samples.h>
+#include <qwt_plot_barchart.h>
+#include <QColor>
+#include <QPen>
 
 #include<iostream>
 
-QwtPlot *rez=NULL, *mapa=NULL, *grafProudnice=NULL, *grafTracer=NULL;
+QwtPlot *rez=NULL, *mapa=NULL, *grafProudnice=NULL, *grafTracer=NULL, *prurez=NULL;
 
 class SpectrogramData: public QwtRasterData
 {
@@ -81,7 +86,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-QMessageBox::critical(NULL,"problem",QString::number(N)); // tohle asi nahradi smysluplny obsah... nebo to pujde pryc i s tlacitkem
+QMessageBox::critical(NULL,"problem",QString::number(N));
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -93,33 +98,59 @@ void MainWindow::on_pushButton_clicked()
 
     for (int i=0;i<6;i++)
     {
-        QGraphicsLineItem * hloubka = new QGraphicsLineItem();
-        hloubka->setLine(0,z[i],100,z[i]);
-        schema->addItem(hloubka);
-    }
+    QGraphicsLineItem * hloubka = new QGraphicsLineItem();
+    hloubka->setLine(0,z[i],100,z[i]);
+    schema->addItem(hloubka);
+}
     ui->graphicsView->setScene(schema);
     ui->graphicsView->fitInView(schema->sceneRect());
+    //-------udelame to vse jako histogram
 
-    for (int i=1; i <= N; i++)
-    {
-        rez = new QwtPlot(ui->FrameHH);
-        rez->setTitle("Řez hydraulické výšky v linii vrtů");
-        rez->setCanvasBackground(Qt::white);
-        rez->setAxisScale(QwtPlot::yLeft, z[0], z[N]);
-        rez->setAxisScale(QwtPlot::xBottom, -L/2 , L*1.5);
-        rez->insertLegend(new QwtLegend);
 
-        QwtPlotCurve *vrstva = new QwtPlotCurve("vrstva");
-        //krivka->setSamples( x, rezh, xDim);
-        vrstva->setPen( Qt::red, 1 );
-        vrstva->attach(rez);
+   rez = new QwtPlot(ui->FrameHH);
+   rez ->setTitle("geologicke vrstvy");
+   rez ->setCanvasBackground(Qt::white);
+   rez->setAxisScale(QwtPlot::yLeft, z[0], z[N]);
+   rez->setAxisScale(QwtPlot::xBottom, -L/2 ,L*1.5);
+   rez->insertLegend(new QwtLegend);
 
-        QwtPlotGrid *mrizka = new QwtPlotGrid();
-        mrizka->attach(rez);
+   QVector <QwtIntervalSample> X,Y,S1,S2;
 
-        rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
-        rez->show();
-    }
+   //----------pridam hladinu
+   Y.push_back(QwtIntervalSample((1.5*L)+5,0,H));
+
+   QwtPlotHistogram *hladina = new QwtPlotHistogram ("hladina");
+   hladina->setSamples(Y);
+   hladina->setBaseline((-L/2)-5);
+   hladina->setOrientation(Qt::Orientation(1));
+   hladina->setPen(QColor(65,105,225),2,Qt::DashLine);
+   hladina->attach(rez);
+//--------geol rez
+   for (int i=0; i<N; i++)
+   {
+   X.push_back(QwtIntervalSample((1.5*L)+5,z[i],z[i+1]));
+
+   QwtPlotHistogram *vrstva = new QwtPlotHistogram("vrstva");
+   vrstva->setSamples(X);
+   vrstva->setBaseline((-L/2)-5);
+   vrstva->setOrientation(Qt::Orientation(1));
+   vrstva->setPen(QColor(139,69,19,255),5);
+   vrstva->attach(rez);
+   }
+
+//-----pridam studny
+   S1.push_back(QwtIntervalSample(z[N],0-r[0],0+r[1]));
+   S2.push_back(QwtIntervalSample(z[N],L-r[0],L+r[1]));
+
+   QwtPlotHistogram *studna1 = new QwtPlotHistogram ("studna 1.");
+   QwtPlotHistogram *studna2 = new QwtPlotHistogram ("studna  2.");
+   studna1->setSamples(S1);
+   studna2->setSamples(S2);
+   studna1->attach(rez);
+   studna2->attach(rez);
+
+   rez->resize(ui->FrameHH->width(),ui->FrameHH->height());
+   rez->show();
     
 }
 
