@@ -22,5 +22,6 @@ void testovaci_input();
 double wellYield(int idx);
 double wellDrawdown(int idx);
 int sgn(double x);
-int getLayer(double Z);
+void gradh(double x, double y, double *dhdx, double *dhdy);
+void v(double x, double y, double k, double *vx, double *vy);
 #endif
