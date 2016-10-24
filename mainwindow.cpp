@@ -269,6 +269,7 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     mrizka->attach(rez);
 
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
+    rez->replot();
     rez->show();
 }
 
@@ -698,9 +699,8 @@ bool MainWindow::readLayers()
     d[4] = z[5] - z[4];
 
     int n = getLayer(H);
-    cerr << "n = " << n << endl;
 
-    // pripad hodnoty H nad terenem, tj. pocitame transmisivitu pres vsechny vrstvy:
+    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
     if(n==-1)
         n = N;
 

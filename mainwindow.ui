@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -109,7 +109,7 @@
           <item>
            <widget class="QLineEdit" name="lineEdit_2">
             <property name="text">
-             <string>2e-6</string>
+             <string>3e-5</string>
             </property>
            </widget>
           </item>
@@ -161,7 +161,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>3e-5</string>
+             <string>3e-3</string>
             </property>
            </widget>
           </item>
@@ -405,7 +405,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Poloměry vrtů&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Průměry vrtů&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -474,7 +474,7 @@
           <item>
            <widget class="QLineEdit" name="lineEdit_12">
             <property name="text">
-             <string>250</string>
+             <string>125</string>
             </property>
            </widget>
           </item>
@@ -486,7 +486,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_20"/>
+           <widget class="QLineEdit" name="lineEdit_20">
+            <property name="text">
+             <string>100</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_48">
@@ -547,7 +551,7 @@
           <item>
            <widget class="QLineEdit" name="lineEdit_15">
             <property name="text">
-             <string>250</string>
+             <string>125</string>
             </property>
            </widget>
           </item>
@@ -559,7 +563,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_21"/>
+           <widget class="QLineEdit" name="lineEdit_21">
+            <property name="text">
+             <string>60</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_49">
@@ -575,9 +583,9 @@
       <widget class="QWidget" name="horizontalLayoutWidget_10">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>30</x>
          <y>210</y>
-         <width>161</width>
+         <width>231</width>
          <height>51</height>
         </rect>
        </property>
@@ -608,9 +616,9 @@
       <widget class="QWidget" name="horizontalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>180</x>
+         <x>320</x>
          <y>210</y>
-         <width>151</width>
+         <width>191</width>
          <height>51</height>
         </rect>
        </property>
@@ -625,7 +633,7 @@
         <item>
          <widget class="QLineEdit" name="lineEdit_18">
           <property name="text">
-           <string>4</string>
+           <string>3</string>
           </property>
          </widget>
         </item>
@@ -641,9 +649,9 @@
       <widget class="QWidget" name="horizontalLayoutWidget_2">
        <property name="geometry">
         <rect>
-         <x>340</x>
+         <x>570</x>
          <y>210</y>
-         <width>151</width>
+         <width>112</width>
          <height>51</height>
         </rect>
        </property>
