@@ -56,6 +56,12 @@ private slots:
 private:
     Ui::MainWindow *ui;
     void readData();
+<<<<<<< HEAD
+=======
+    bool readLayers(); // nacte udaje o vrstvach a vzdalenost studni; spocita transmisivitu
+    bool readWells();  // nacte udaje o studnach
+    int readN();       // zjistit pocet vrstev - znova a lepe
+>>>>>>> origin/master
 };
 
 #endif // MAINWINDOW_H

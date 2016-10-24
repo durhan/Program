@@ -75,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    logfile.close();
     delete rez;
     delete mapa;
     delete ui;
@@ -323,8 +324,15 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 {
     testovaci_input();
 
+<<<<<<< HEAD
     if(rez != NULL)
         delete rez;
+=======
+    logInput();
+
+    //if(rez != NULL)
+    //    delete rez;
+>>>>>>> origin/master
 
     // rozmery pole: x: 2*L, y: whatever
     int xDim = int(2*L);
@@ -415,42 +423,17 @@ void ExportPlot(QwtPlot *arg, const char *filename)
     qPix.save(filename,"PNG",85);
 }
 
-/* jen kus kodu - ukazkovy zpusob, jak vynest jednoduchy graf:
-    QwtPlot *plot = new QwtPlot(ui->ramecek);
-    plot->setTitle( "Plot Demo" );
-    plot->setCanvasBackground( Qt::white );
-    plot->setAxisScale( QwtPlot::yLeft, 0.0, 10.0 );
-    plot->insertLegend( new QwtLegend() );
-
-    QwtPlotGrid *grid = new QwtPlotGrid();
-    grid->attach( plot );
-
-    QwtPlotCurve *curve = new QwtPlotCurve();
-    curve->setTitle( "Some Points" );
-    curve->setPen( Qt::blue, 4 ),
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-
-    QwtSymbol *symbol = new QwtSymbol( QwtSymbol::Ellipse,
-        QBrush( Qt::yellow ), QPen( Qt::red, 2 ), QSize( 4, 8 ) );
-    curve->setSymbol( symbol );
-
-    QPolygonF points;
-    points << QPointF( 0.0, 4.4 ) << QPointF( 1.0, 3.0 )
-        << QPointF( 2.0, 4.5 ) << QPointF( 3.0, 6.8 )
-        << QPointF( 4.0, 7.9 ) << QPointF( 5.0, 7.1 );
-    curve->setSamples( points );
-
-    curve->attach( plot );
-
-    plot->resize( ui->ramecek->width(), ui->ramecek->height() );
-    plot->show();
-*/
-
 void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
 {
     testovaci_input();
 
+<<<<<<< HEAD
     if(mapa !=NULL)
+=======
+    logInput();
+
+    if(mapa != NULL)
+>>>>>>> origin/master
         delete mapa;
 
     mapa = new QwtPlot(ui->widgetMapa);
@@ -536,6 +519,7 @@ testovaci_input();
 
     s[0]=wellDrawdown(0);
     s[1]=wellDrawdown(1);
+
   ui->lineEdit_13->setText(QString::number(s[0]));
   ui->lineEdit_16->setText(QString::number(s[1]));
 
@@ -560,7 +544,7 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     grafProudnice = new QwtPlot(ui->widgetProudnice);
     grafTracer = new QwtPlot(ui->widgetTracer);
 
-    ofstream outfile("proudnice.txt",ios_base::out);
+    ofstream outfile("proudnice.txt",ios_base::app);
     int poradove_cislo=1;
 
     outfile << __TIMESTAMP__ << endl;
@@ -579,7 +563,13 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
             x[j] = j*L + (r[j]+.01) * cos(fi+.001);
             y[j] = (r[j]+.01) * sin(fi+.001);
 
+            X.clear();
+            Y.clear();
+
             t = track_point(x[j], y[j], z0, sgn(Q[j]) * krok, &X, &Y); //
+
+            if(X.size() == 0)
+                continue;
 
             //zaznamenat "cestovni cas" trajektorie, pokud skoncila v nekterem vrtu
             double ro[] = {sqrt(pow(X[X.size()-1],2) + pow(Y[Y.size()-1],2)), sqrt(pow(X[X.size()-1]-L,2) + pow(Y[Y.size()-1],2))};
@@ -678,3 +668,200 @@ void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
 {
     // empty :(((
 }
+<<<<<<< HEAD
+=======
+
+bool MainWindow::readLayers()
+{
+    // nacist data z gui do promennych
+    N = readN();
+
+    if(N==0)
+    {
+        QMessageBox::critical(NULL,"Chyba!", "Co takhle zadat alespoň nějaké údaje o vrstvách?");
+        return false;
+    }
+
+    if(!logfile.is_open())
+        logfile.open("log.txt",ios_base::app);
+
+    QLocale loc(QLocale::system());
+
+    // hloubky rozhrani a hydraulicke vodivosti vrstev
+    for(int i = 0; i < 6; i++)
+    {
+        K[i] = 0;
+        z[i] = 0;
+    }
+
+    z[0] = 0; // v tehle fazi teren
+    z[1] = loc.toDouble(ui->lineEdit->text()); // musi byt zadano aspon tohle
+    K[0] = loc.toDouble(ui->lineEdit_2->text());
+
+    if(N > 1) {
+        z[2] = loc.toDouble(ui->lineEdit_3->text());
+        K[1] = loc.toDouble(ui->lineEdit_4->text()); }
+    if(N > 2) {
+        z[3] = loc.toDouble(ui->lineEdit_5->text());
+        K[2] = loc.toDouble(ui->lineEdit_6->text()); }
+    if(N > 3) {
+        z[4] = loc.toDouble(ui->lineEdit_7->text());
+        K[3] = loc.toDouble(ui->lineEdit_8->text()); }
+    if(N > 4) {
+        z[5] = loc.toDouble(ui->lineEdit_9->text());
+        K[4] = loc.toDouble(ui->lineEdit_10->text()); }
+
+    for(int i = 1; i < N; i++)
+    {
+        if(z[i] < .001)
+        {
+            QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst všechny hodnoty z!");
+            return false;
+        }
+        if(K[i] < 1e-14) // mensi K uz snad nikdo nezada
+        {
+            QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst všechny hodnoty K!");
+            return false;
+        }
+    }
+
+    // vzdalenost mezi studnami
+    L = loc.toDouble(ui->lineEdit_17->text());
+
+    if(L < .001)
+    {
+        QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst hodnotu L!");
+        return false;
+    }
+    // veci odvozene:
+
+    // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
+    double Z_base = z[N];
+
+    for(int i = 0; i < N+1; i++)
+    {
+        logfile << "readLayers: z[" << i << "] = " << z[i] << "\t";
+        z[i] = Z_base - z[i];
+        logfile << z[i] << endl;
+    }
+
+    for(int i = 0; i < (N+1)/2; i++)
+    {
+        double pom, pom2;
+        pom = z[i];
+        z[i] = z[N-i];
+        z[N-i] = pom;
+
+        pom2 = K[i];
+        K[i] = K[N-i];
+        K[N-i]= pom2;
+    }
+
+    // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
+    H = loc.toDouble(ui->lineEdit_18->text());
+    if(H < .000001)
+    {
+        QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
+        //return false;
+    }
+
+    H = Z_base - H;
+
+    // mocnosti vrstev
+    d[0] = z[1];
+    d[1] = z[2] - z[1];
+    d[2] = z[3] - z[2];
+    d[3] = z[4] - z[3];
+    d[4] = z[5] - z[4];
+
+    int n = getLayer(H);
+    cerr << "n = " << n << endl;
+
+    // pripad hodnoty H nad terenem, tj. pocitame transmisivitu pres vsechny vrstvy:
+    if(n==-1)
+        n = N;
+
+    // transmisivita kolektoru
+    T = 0;
+    for(int i=0; i < n; i++)
+        T+= K[i]*d[i];
+
+    double dT = K[n]*(H - z[n]);
+    if(dT < 0)
+    {
+        logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
+    }
+    T+=dT;
+
+    return true;
+}
+
+bool MainWindow::readWells()
+{
+    QLocale loc(QLocale::system());
+
+    // vydatnosti - do form se zadavaji l/s
+    Q[0] = loc.toDouble(ui->lineEdit_11->text())/1000; // s prevodem na m3/s
+    Q[1] = loc.toDouble(ui->lineEdit_14->text())/1000;
+
+    if(ui->lineEdit_11->text().isEmpty() && ui->lineEdit_14->text().isEmpty())
+    {
+        QMessageBox::critical(NULL,"Chyba!","Musí být zadaná alespoň jedna vydatnost (druhá se dá spočítat, pokud pro ni zadáte snížení).");
+        return false;
+    }
+
+    // polomery studni - do form se zadavaji PRUMERY V mm
+    r[0] = loc.toDouble(ui->lineEdit_12->text())/2/1000;
+    r[1] = loc.toDouble(ui->lineEdit_15->text())/2/1000;
+
+    if((r[0] < .001) || (r[1] < .001))
+    {
+        QMessageBox::critical(NULL,"Chyba!","Musejí být zadané průměry obou studní.");
+        return false;
+    }
+
+    // polomery dosahu (odhad, nebo vnucena hodnota]
+    R[0] = loc.toDouble(ui->lineEdit_20->text());
+    R[1] = loc.toDouble(ui->lineEdit_21->text());
+
+    if(ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
+    {
+        QMessageBox::warning(NULL,"Varování", "Nebyly zadány oba poloměry dosahu. Lze je spočítat z hodnot vydatností a snížení.");
+    }
+
+    // snizeni
+    s[0] = loc.toDouble(ui->lineEdit_13->text());
+    s[1] = loc.toDouble(ui->lineEdit_16->text());
+
+    if(ui->lineEdit_13->text().isEmpty() || ui->lineEdit_16->text().isEmpty())
+    {
+        QMessageBox::warning(NULL,"Varování", "Nebyly zadána snížení v obou studnách. Lze je spočítat z hodnot vydatností a poloměrů dosahu.");
+    }
+
+    return true;
+}
+
+int MainWindow::readN()
+{
+    int n = 0;
+
+    if(!ui->lineEdit->text().isEmpty() && !ui->lineEdit_2->text().isEmpty() && ui->lineEdit_2->isEnabled())
+        n++;
+
+    if(!ui->lineEdit_3->text().isEmpty() && !ui->lineEdit_4->text().isEmpty() && ui->lineEdit_4->isEnabled())
+        n++;
+
+    if(!ui->lineEdit_5->text().isEmpty() && !ui->lineEdit_6->text().isEmpty() && ui->lineEdit_6->isEnabled())
+        n++;
+
+    if(!ui->lineEdit_7->text().isEmpty() && !ui->lineEdit_8->text().isEmpty() && ui->lineEdit_8->isEnabled())
+        n++;
+
+    if(!ui->lineEdit_9->text().isEmpty() && !ui->lineEdit_10->text().isEmpty() && ui->lineEdit_10->isEnabled())
+        n++;
+
+    return n;
+}
+
+
+>>>>>>> origin/master
