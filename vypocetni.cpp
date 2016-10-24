@@ -17,7 +17,6 @@ double getK(double Z);
 void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
 double Integral(double h);
-// void solve_quadratic(double a, double b, double c, double *x1, double *x2);
 double GirPot(double r1, double r2);
 void gradh(double x, double y, double *dhdx, double *dhdy);
 void v(double x, double y, double k, double *vx, double *vy);
@@ -57,7 +56,8 @@ double wellDrawdown(int idx)
         logfile << "wellDrawdown: bad parameter value!" << endl;
         return 0.0;
     }
-
+    cout << "H = " << H << endl;
+    cout << "h = " << hydraulic_head(fabs(idx*L - r[idx]),0) << endl;
     return (H - hydraulic_head(fabs(idx*L - r[idx]),0)); // mwahaha! ... :) vyuzivam toho, ze studna[0] ma vzdycky souradnice [0,0] a druha [L,0]
 }
 
@@ -66,38 +66,51 @@ double hydraulic_head(double x, double y)
 {
 	double r1 = sqrt(x*x + y*y);
 	double r2 = sqrt((x-L)*(x-L) + y*y);
-	
+    
     if(r1 < r[0])
         return hydraulic_head(r[0],0);
 
     if(r2 < r[1])
         return hydraulic_head(L+r[1],0);
 
-	double I0 = Integral(0);
-    double Gh = GirPot(r1, r2) - I0; // vyzaduje Q-cka
-	double GH = Integral(H) - I0;
-	
-	double h_odhad = Gh/GH * H;
-	double h_pom = H;
-	
+//	double I0 = Integral(0);
+    double Gh = GirPot(r1, r2);// - I0; // vyzaduje Q-cka
+    
+    if(Gh == 0)
+        return 0;
+    
+	double GH = Integral(H);// - I0;
+
+    //cout << "Gh = " << Gh << endl;
+	double h_odhad;// = Gh/GH * H;
+/*	double h_pom = H;
 	double alfa = 0.6; // tlumic kroku
-	
-/*	logfile << "[ " << x << "; " << y << "] : " << endl;
-    logfile << "GH = " << GH << endl;
-    logfile << "Gh = " << Gh << endl;
-    logfile << "h_odhad = " << h_odhad << endl;
-    logfile << "Integral(0) = " << I0 << endl;
 */
-	
-	do {
-		double G_odhad = Integral(h_odhad) - I0;
-		h_pom = h_odhad;
-		
-        //logfile << "h_odhad = " << h_odhad << endl;
-		
-		h_odhad+= (Gh - G_odhad)/GH * H * alfa;
-	} while(abs(h_odhad - h_pom)/alfa > 5e-4); // hyd. vyska s chybou .5 mm musi stacit kazdymu
-	
+	double a,b;
+    
+	if(Gh>0) {
+        a = -500;
+        b = 0; }
+    
+    if(Gh<0) {
+        a = 0;
+        b = 500; }
+
+    double sa = sgn(Gh - Integral(a));
+    double sb = sgn(Gh - Integral(b));
+    
+    do {
+		h_odhad = (a + b)/2;
+        double fh = Gh - Integral(h_odhad);
+        
+        if( sgn(fh) == sa )
+            a = h_odhad;
+        
+        if( sgn(fh) == sb )
+            b = h_odhad;
+
+	} while(fabs(b-a) > 1e-4); // hyd. vyska s chybou .5 mm musi stacit kazdymu
+	//cout << "Integral(h_odhad) = " << Integral(h_odhad) << endl;
 	return h_odhad;
 }
 
@@ -105,11 +118,22 @@ double GirPot(double r1, double r2)
 {
     if((sgn(r1) < 1) || (sgn(r2) < 1))
     {
-        logfile << "GirPot: zaporny argument!" << endl;
+        logfile << "GirPot: error: nekladny argument!" << endl;
         return 0.0;
     }
-
-	return (0.5/M_PI * (Q[0]*log(r1/R[0]) + Q[1]*log(r2/R[1])) + Integral(H));
+    
+    double Pot = 0.0;
+    
+    if( r1 < R[0] )
+        Pot+= Q[0]*log(r1/R[0]);
+    
+    if( r2 < R[1] )
+        Pot+= Q[1]*log(r2/R[1]);
+    
+    Pot*= 0.5/M_PI;    
+    Pot+= Integral(H);
+    
+    return Pot;
 }
 
 //--------------------------------- H O T O V E -----------------------------------
@@ -148,6 +172,15 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	X->clear();
 	Y->clear();
 	*T = 0;
+
+    if(!logfile.is_open())
+        logfile.open("log.txt",ios_base::app);
+
+    if(fabs(krok) == 0)
+    {
+        logfile << "track_point: varovani: krok = 0 (asi je Q = 0)." << endl;
+        return;
+    }
 	
 	double x = x0;
 	double y = y0;
@@ -159,7 +192,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	
 	if (K < 0)
 	{
-		cerr << "Nepodarilo se najit odpovidajici K." << endl;
+        logfile << "track_point: error: Nepodarilo se najit odpovidajici K." << endl;
 		return;
 	}
 	
@@ -170,8 +203,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 		double vx, vy;
 		v(x, y, K, &vx, &vy); // slozky obj. hustoty toku
 		double vel = sqrt(vx*vx+vy*vy);
-		double dt = krok / vel; // skalovat vektor v na delku kroku
-        if(dt>3e7) // kdyz krok urazi za rok...
+        if(vel < fabs(krok)/(3600*24*365.25)) // kdyz krok urazi za rok...
         {
             logfile << "track_point: trajectory terminated: negligible flow" << endl;
             logfile << "x = " << x << endl;
@@ -180,6 +212,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "Starting point: [ " << x0 << ", " << y0  << ", " << z0 << "]." << endl;
             return;
         }
+
+		double dt = krok / vel; // skalovat vektor v na delku kroku
 
         if((X->size() > maxidx) || (X->size() == X->max_size()))
         {
@@ -191,6 +225,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             return;
         }
 		
+
         if(X->size() > 2) {
         if( sqrt(pow((*X)[X->size()-3]-(*X)[X->size()-1],2) + pow((*Y)[Y->size()-3]-(*Y)[Y->size()-1],2)) < krok) // ah, the evil of wrapping yourself around a watershed!
         {
@@ -258,20 +293,28 @@ double Integral(double h)
 {
 	bool konec = false;
 	double Pot = 0.0;
-
+    
+    if(h < 0)
+        logfile << "Integral: warning: argument < 0" << endl;
+    
 	for(int i=0; i<N; i++)
 	{
 		double a = z[i];
 		double b;
 
-		if (h > z[i+1])
+		if ((h > z[i+1]) || (h < 0))
 			b = z[i+1];
 		else
 		{
 			b = h;
 			konec = true;
 		}
-
+/*		cout << "N = " << N << endl;
+		cout << "a = " << a << endl;
+        cout << "b = " << b << endl;
+        cout << "h = " << h << endl;
+        cout << "K[i] = " << K[i] << endl;
+*/
 		Pot+= IntegralOverOneLayer(a,b,K[i],h);
 
 		if (konec) break;
@@ -327,7 +370,7 @@ void v(double x, double y, double k, double *vx, double *vy)
 
 void testovaci_input()
 {
-    N = 5;
+    N = 3;
 
     if(!logfile.is_open())
         logfile.open("log.txt",ios_base::ate);
@@ -335,14 +378,12 @@ void testovaci_input()
     if(!logfile.is_open())
         cout << "Logfile is NOT open." << endl;
 
-
-
         // udaje o studnach:
-    Q[0] =-.005; // m3/s Q<0 cerpani, Q>0 zasakovani
+    Q[0] =-.0005; // m3/s Q<0 cerpani, Q>0 zasakovani
     Q[1] = .003; // m3/s
     r[0] = r[1] = .125; //m
-    R[0] = 160;
-    R[1] = 135; //m
+    R[0] = 100;
+    R[1] = 60; //m
     s[0] = .43;
     s[1] =-.2;
 
@@ -353,14 +394,14 @@ void testovaci_input()
     z[1] =  2.0;
     z[2] =  5.0;
     z[3] =  8.0;
-    z[4] = 12.0;
-    z[5] = 15.0; // podlozi
+    z[4] = 0.0;
+    z[5] = 0.0; // podlozi
 
     K[0] = 3e-5; // m/s
     K[1] = 3e-3; // m/s
     K[2] = 3e-6; // m/s
-    K[3] = 3e-5; // m/s
-    K[4] = 3e-6; // m/s
+    K[3] = 0; // m/s
+    K[4] = 0; // m/s
 
     T = 0;
     for(int i = 0; i < N; i++)
@@ -372,25 +413,7 @@ void testovaci_input()
     H = 4.0; // hloubka hpv
 
     // test logfile
-    logfile << "I N P U T   D A T A" << endl << endl;
-    for(int i = 0; i < 2; i++)
-    {
-        logfile << "Studna c. " << i+1 << endl;
-        logfile << "Q[" << i+1 <<"] = " << Q[i] << " m3/s" << endl;
-        logfile << "s[" << i+1 <<"] = " << s[i] << " m" << endl;
-        logfile << "r[" << i+1 <<"] = " << r[i] << " m" << endl;
-        logfile << "R[" << i+1 <<"] = " << R[i] << " m" << endl << endl;
-    }
 
-    logfile << "Hydrogeologický profil:" << endl;
-    logfile << "z[0] = " << z[0] << " m" << endl;
-    for(int i = 0; i < N; i++)
-    {
-        logfile << "K[" << i+1 <<"] = " << K[i] << " m/s" << endl;
-        logfile << "z[" << i+1 <<"] = " << z[i+1] << " m" << endl;
-    }
-    logfile << endl << "Puvodni/prirozena hpv: H = " << H << " m" << endl;
-    logfile.flush();
     // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
     double Z_base = z[N];
 
@@ -410,4 +433,33 @@ void testovaci_input()
     }
 
     H = Z_base - H;
+}
+
+void logInput()
+{
+    if(!logfile.is_open())
+        logfile.open("log.txt",ios_base::app);
+
+    logfile << "I N P U T   D A T A - - - - - - - - - - - - - - - - - -" << endl << __DATE__ << " " <<__TIME__ << endl << endl;
+    for(int i = 0; i < 2; i++)
+    {
+        logfile << "Studna c. " << i+1 << endl;
+        logfile << "Q[" << i+1 <<"] = " << Q[i] << " m3/s" << endl;
+        logfile << "s[" << i+1 <<"] = " << s[i] << " m" << endl;
+        logfile << "r[" << i+1 <<"] = " << r[i] << " m" << endl;
+        logfile << "R[" << i+1 <<"] = " << R[i] << " m" << endl << endl;
+    }
+
+    logfile << "Hydrogeologický profil (zdola nahoru, z=0 je podloží):" << endl;
+    logfile << "Počet načtených vrstev: N = " << N << endl << endl;
+    logfile << "z[0] = " << z[0] << " m" << endl;
+    for(int i = 0; i < N; i++)
+    {
+        logfile << "K[" << i+1 <<"] = " << K[i] << " m/s" << endl;
+        logfile << "z[" << i+1 <<"] = " << z[i+1] << " m" << endl;
+    }
+    logfile << endl << "Puvodni/prirozena hpv: H = " << H << " m" << endl << "se nachazi ve vrstve c. " << getLayer(H)+1 << "." << endl;
+
+    logfile << endl;
+    logfile.flush();
 }
