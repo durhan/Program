@@ -268,6 +268,7 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
         x[i] = i - L/2;
         if(isnan(x[i]))
         {
+            if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
             logfile << "ERROR: REZ: x[i] = nan" << endl;
             logfile << "i    = " << i << endl;
             logfile << "xDim = " << xDim << endl;
@@ -346,15 +347,18 @@ void ExportPlot(QwtPlot *arg, const char *filename)
     QPixmap qPix = arg->grab();
 
     if(qPix.isNull()){
-        logfile << "Export: Failed to capture the plot '" << filename << "' for saving." << endl;
+        if(!logfile.is_open())
+            logfile.open("log.txt",ios_base::app);
+        logfile << "ExportPlot: Failed to capture the plot '" << filename << "' for saving." << endl;
         return;
     }
 
     //QFileDialog *saving = new QFileDialog(NULL,"Kepsn", "c:/");
+    QString fname = QFileDialog::getSaveFileName(NULL,"Uložit jako",".","*.png");
 
 
     //QFileDialog(ui,"Export řezu hydraulické výšky", new QString("C:/"), new QString(".png"));
-    qPix.save(filename,"PNG",85);
+    qPix.save(fname,"PNG",85);
 }
 
 void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
@@ -467,10 +471,9 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 
   if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"Chyba!","Zadejte vydatnost!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte obě vydatnosti!");
       return;
   }
-
     s[0]=wellDrawdown(0);
     s[1]=wellDrawdown(1);
 
@@ -500,10 +503,10 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     grafProudnice = new QwtPlot(ui->widgetProudnice);
     grafTracer = new QwtPlot(ui->widgetTracer);
 
-    ofstream outfile("proudnice.txt",ios_base::app);
+    ofstream outfile("proudnice.txt",ios_base::out);
     int poradove_cislo=1;
 
-    outfile << __TIMESTAMP__ << endl;
+    outfile << __DATE__ << " " << __TIME__ << endl;
 
     double krokfi = 2.0*M_PI/26;
 
@@ -706,14 +709,18 @@ bool MainWindow::readLayers()
 
     for(int i = 0; i < (N+1)/2; i++)
     {
-        double pom, pom2;
+        double pom;
         pom = z[i];
         z[i] = z[N-i];
         z[N-i] = pom;
+    }
 
-        pom2 = K[i];
-        K[i] = K[N-i];
-        K[N-i]= pom2;
+    for(int i = 0; i < N/2; i++) // protoze pole K je o prvek kratsi nez pole z - prohazovani jednim vrzem neni cesta
+    {
+        double pom;
+        pom = K[i];
+        K[i] = K[N-i-1];
+        K[N-i-1]= pom;
     }
 
     // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi

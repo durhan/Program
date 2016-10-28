@@ -70,7 +70,7 @@ double hydraulic_head(double x, double y)
         return hydraulic_head(r[0],0);
 
     if(r2 < r[1])
-        return hydraulic_head(L+r[1],0);
+        return hydraulic_head(L-r[1],0);
 
     if((r1 > R[0]) && (r2 > R[1]))
         return H;
@@ -79,9 +79,6 @@ double hydraulic_head(double x, double y)
     
     if(Gh >= 0)
         return 0;
-    
-    //double GH = Integral(H);
-
 
     double h_odhad;
     double a,b;
@@ -89,28 +86,43 @@ double hydraulic_head(double x, double y)
     a = 0;
     b = 50;
 
-    double sa = sgn(Gh - Integral(a));
-    double sb = sgn(Gh - Integral(b));
-    
+    // pro pripad, ze by h > 50:
+    while(Gh < Integral(b))
+    {
+        a = b - 1; // nastavim a kousek pod b
+        b+= 10; // postrcim b o kus nahoru
+    }
+
+/*    cout << "Gh = " << Gh << endl;
+    cout << "sa = " << sa << endl;
+    cout << "sb = " << sb << endl;
+    cout << "r1 = " << r1 << endl;
+    cout << "r2 = " << r2 << endl;
+    cout << "IH = " << Integral(H) << endl;
+*/
     do {
 		h_odhad = (a + b)/2;
         double fh = Gh - Integral(h_odhad);
         
-        if( sgn(fh) == sa )
+        if( sgn(fh) == -1 )
             a = h_odhad;
         
-        if( sgn(fh) == sb )
+        if( sgn(fh) ==  1 )
             b = h_odhad;
+
+        if( sgn(fh) ==  0 )
+            return h_odhad;
 
     } while(fabs(b-a) > 1e-4); // hyd. vyska s chybou .1 mm musi stacit kazdymu
 
-	return h_odhad;
+    return (a + b)/2;
 }
 
 double GirPot(double r1, double r2)
 {
     if((sgn(r1) < 1) || (sgn(r2) < 1))
     {
+        if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
         logfile << "GirPot: error: nekladny argument!" << endl;
         return 0.0;
     }
@@ -287,8 +299,10 @@ double Integral(double h)
 	bool konec = false;
 	double Pot = 0.0;
     
-    if(h < 0)
+    if(h < 0) {
+        if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
         logfile << "Integral: warning: argument < 0" << endl;
+    }
     
 	for(int i=0; i<N; i++)
 	{
@@ -420,6 +434,14 @@ void testovaci_input()
         //logfile << "z[" << i << "] = " << z[i] << endl;
     }
 
+    for(int i = 0; i < N/2; i++)
+    {
+        double pom;
+        pom = K[i];
+        K[i] = K[N-i-1];
+        K[N-i-1] = pom;
+        //logfile << "K[" << i << "] = " << K[i] << endl;
+    }
     H = Z_base - H;
 }
 
