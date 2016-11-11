@@ -13,8 +13,7 @@ double Q[2], r[2], R[2], s[2];
 double L, T, H;
 ofstream logfile;//("log.txt",ios_base::ate);
 
-double getK(double Z);
-int getLayer(double Z);
+//int getLayer(double Z);
 void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
 double Integral(double h);
@@ -163,20 +162,23 @@ int getLayer(double Z)
 	return -1;
 }
 
-double track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y)
+double track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, EndPoint *ep)
 {
 	double T;
 	
-	track_point(x0, y0, z0, krok, X, Y, &T);
+    track_point(x0, y0, z0, krok, X, Y, &T, ep);
 	
 	return T;
 }
 
-void track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, double *T)
+void track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, double *T, EndPoint *ep)
 {
 	X->clear();
 	Y->clear();
 	*T = 0;
+
+    X->reserve(10000);
+    Y->reserve(10000);
 
     if(!logfile.is_open())
         logfile.open("log.txt",ios_base::app);
@@ -215,6 +217,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "y = " << y << endl;
             logfile << "v = " << vel << endl;
             logfile << "Starting point: [ " << x0 << ", " << y0  << ", " << z0 << "]." << endl;
+            if(ep != NULL)
+                *ep = other;
             return;
         }
 
@@ -227,6 +231,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "y = " << y << endl;
             logfile << "v = " << vel << endl;
             logfile << "Starting point: [ " << x0 << ", " << y0 << ", " << z0 << "]." << endl;
+            if(ep != NULL)
+                *ep = other;
             return;
         }
 		
@@ -241,6 +247,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             X->pop_back();
             Y->pop_back();
             Y->pop_back();
+            if(ep != NULL)
+                *ep = watershed;
             return;
         }}
 		double dx = vx * dt;
@@ -253,12 +261,17 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 		l[0] = sqrt(x*x+y*y); // vzdalenost sledovane castice od prvni/druhe studny
 		l[1] = sqrt((x-L)*(x-L)+y*y);
 	
-#ifdef DEBUG
-		cout << "l[0] = " << l[0] << endl;
-		cout << "l[1] = " << l[1] << endl;
-#endif
-		
+        if(ep != NULL) {
+
+            if((l[0] < r[0]) || (l[1] < r[1]))
+                *ep = well;
+
+            if((l[0] > R[0]*.99) || (l[1] > R[1]*.99))
+                *ep = range;
+        }
+
     } while ( !( (l[0]<r[0]) || (l[1]<r[1]) || ( (l[0]>R[0]*.99) && (l[1]>R[1]*.99) )   ));
+
 }
 
 void simple_track_point(double x0, double y0, double krok, vector<double> *X, vector<double> *Y) // trajektorie konci, jakmile se dostaneme do vrtu
