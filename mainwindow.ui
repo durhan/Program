@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>2W Flow Prospector</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -40,7 +40,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Vrstvy</string>
+       <string>1. Vrstvy</string>
       </property>
       <widget class="QWidget" name="verticalLayoutWidget">
        <property name="geometry">
@@ -86,7 +86,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLineEdit" name="lineEdit">
+            <property name="text">
+             <string>2</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_2">
@@ -103,7 +107,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_2"/>
+           <widget class="QLineEdit" name="lineEdit_2">
+            <property name="text">
+             <string>3e-5</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_4">
@@ -128,6 +136,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="text">
+             <string>5</string>
+            </property>
            </widget>
           </item>
           <item>
@@ -148,6 +159,9 @@
            <widget class="QLineEdit" name="lineEdit_4">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>3e-3</string>
             </property>
            </widget>
           </item>
@@ -174,6 +188,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="text">
+             <string>8</string>
+            </property>
            </widget>
           </item>
           <item>
@@ -194,6 +211,9 @@
            <widget class="QLineEdit" name="lineEdit_6">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>3e-6</string>
             </property>
            </widget>
           </item>
@@ -220,6 +240,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="text">
+             <string/>
+            </property>
            </widget>
           </item>
           <item>
@@ -240,6 +263,9 @@
            <widget class="QLineEdit" name="lineEdit_8">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -265,6 +291,9 @@
            <widget class="QLineEdit" name="lineEdit_9">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
             </property>
             <property name="frame">
              <bool>true</bool>
@@ -293,6 +322,9 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="text">
+             <string/>
+            </property>
            </widget>
           </item>
           <item>
@@ -307,14 +339,14 @@
         <item>
          <widget class="QPushButton" name="pushButton">
           <property name="text">
-           <string>Vykresli schéma</string>
+           <string>Nakresli schéma</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="groupBox_2">
+     <widget class="QGroupBox" name="Studny">
       <property name="geometry">
        <rect>
         <x>370</x>
@@ -324,7 +356,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Vrty</string>
+       <string>2. Studny</string>
       </property>
       <widget class="QWidget" name="verticalLayoutWidget_2">
        <property name="geometry">
@@ -353,7 +385,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Vydatnost:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Vydatnosti&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -363,7 +395,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Snížení:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Snížení&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -373,7 +405,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Poloměry vrtů:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Průměry vrtů&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -399,7 +431,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_11"/>
+           <widget class="QLineEdit" name="lineEdit_11">
+            <property name="text">
+             <string>-1.2</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_23">
@@ -411,7 +447,7 @@
           <item>
            <widget class="QLabel" name="label_27">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;s1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;s&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -431,22 +467,37 @@
           <item>
            <widget class="QLabel" name="label_25">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;r1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;d&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_12"/>
+           <widget class="QLineEdit" name="lineEdit_12">
+            <property name="text">
+             <string>125</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_26">
             <property name="text">
-             <string>m</string>
+             <string>mm</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_20"/>
+           <widget class="QLabel" name="label_50">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_20">
+            <property name="text">
+             <string>150</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_48">
@@ -467,7 +518,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_14"/>
+           <widget class="QLineEdit" name="lineEdit_14">
+            <property name="text">
+             <string>1.2</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_30">
@@ -479,7 +534,7 @@
           <item>
            <widget class="QLabel" name="label_33">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;s2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;s&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -496,22 +551,37 @@
           <item>
            <widget class="QLabel" name="label_31">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; vertical-align:sub;&quot;&gt;r2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;d&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_15"/>
+           <widget class="QLineEdit" name="lineEdit_15">
+            <property name="text">
+             <string>125</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_32">
             <property name="text">
-             <string>m</string>
+             <string>mm</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_21"/>
+           <widget class="QLabel" name="label_51">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_21">
+            <property name="text">
+             <string>150</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="label_49">
@@ -527,9 +597,9 @@
       <widget class="QWidget" name="horizontalLayoutWidget_10">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>30</x>
          <y>210</y>
-         <width>161</width>
+         <width>231</width>
          <height>51</height>
         </rect>
        </property>
@@ -542,7 +612,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_17"/>
+         <widget class="QLineEdit" name="lineEdit_17">
+          <property name="text">
+           <string>50</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_38">
@@ -556,9 +630,9 @@
       <widget class="QWidget" name="horizontalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>180</x>
+         <x>320</x>
          <y>210</y>
-         <width>151</width>
+         <width>191</width>
          <height>51</height>
         </rect>
        </property>
@@ -571,7 +645,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_18"/>
+         <widget class="QLineEdit" name="lineEdit_18">
+          <property name="text">
+           <string>3</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_42">
@@ -582,48 +660,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>340</x>
-         <y>210</y>
-         <width>151</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
-        <item>
-         <widget class="QLabel" name="label_40">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Krok:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="lineEdit_19"/>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_43">
-          <property name="text">
-           <string>m</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="geometry">
-       <rect>
-        <x>720</x>
-        <y>380</y>
-        <width>151</width>
-        <height>61</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Spustit výpočet</string>
-      </property>
      </widget>
      <widget class="QPushButton" name="pushButton_8">
       <property name="geometry">
@@ -635,7 +671,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Dopočti snížení</string>
+       <string>Odhad snížení</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_9">
@@ -648,7 +684,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Dopočti vydatnost</string>
+       <string>Odhad vydatnosti</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_10">
@@ -665,24 +701,9 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_3">
-     <attribute name="title">
-      <string>Schéma</string>
-     </attribute>
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>1181</width>
-        <height>661</height>
-       </rect>
-      </property>
-     </widget>
-    </widget>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
-      <string>Proudove pole shora</string>
+      <string>Hydraulická výška</string>
      </attribute>
      <widget class="QWidget" name="widgetMapa" native="true">
       <property name="geometry">
@@ -704,26 +725,26 @@
        </rect>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>Zobrazit</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_7">
       <property name="geometry">
        <rect>
-        <x>200</x>
+        <x>190</x>
         <y>10</y>
-        <width>151</width>
+        <width>171</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Export</string>
+       <string>Exportovat</string>
       </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_5">
      <attribute name="title">
-      <string>Hydraulicka vyska</string>
+      <string>Hydrogeologický řez</string>
      </attribute>
      <widget class="QWidget" name="FrameHH" native="true">
       <property name="geometry">
@@ -745,13 +766,13 @@
        </rect>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string>Zobrazit</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_44">
       <property name="geometry">
        <rect>
-        <x>230</x>
+        <x>390</x>
         <y>10</y>
         <width>131</width>
         <height>21</height>
@@ -764,7 +785,7 @@
      <widget class="QLabel" name="label_45">
       <property name="geometry">
        <rect>
-        <x>230</x>
+        <x>390</x>
         <y>30</y>
         <width>47</width>
         <height>13</height>
@@ -777,7 +798,7 @@
      <widget class="QLabel" name="label_46">
       <property name="geometry">
        <rect>
-        <x>370</x>
+        <x>530</x>
         <y>30</y>
         <width>47</width>
         <height>13</height>
@@ -790,7 +811,7 @@
      <widget class="QLineEdit" name="hhymin">
       <property name="geometry">
        <rect>
-        <x>280</x>
+        <x>440</x>
         <y>30</y>
         <width>71</width>
         <height>20</height>
@@ -800,7 +821,7 @@
      <widget class="QLineEdit" name="hhymax">
       <property name="geometry">
        <rect>
-        <x>430</x>
+        <x>590</x>
         <y>30</y>
         <width>71</width>
         <height>20</height>
@@ -810,7 +831,7 @@
      <widget class="QPushButton" name="pushButton_4">
       <property name="geometry">
        <rect>
-        <x>530</x>
+        <x>690</x>
         <y>30</y>
         <width>75</width>
         <height>23</height>
@@ -823,38 +844,28 @@
      <widget class="QPushButton" name="pushButton_5">
       <property name="geometry">
        <rect>
-        <x>620</x>
-        <y>30</y>
-        <width>101</width>
-        <height>23</height>
+        <x>190</x>
+        <y>10</y>
+        <width>171</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Exportovat řez</string>
+       <string>Exportovat</string>
       </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
-      <string>graf stopovaci zkousky</string>
+      <string>Proudnice</string>
      </attribute>
      <widget class="QWidget" name="widgetProudnice" native="true">
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>220</y>
-        <width>561</width>
-        <height>451</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QWidget" name="widgetTracer" native="true">
-      <property name="geometry">
-       <rect>
-        <x>620</x>
-        <y>230</y>
-        <width>561</width>
-        <height>451</height>
+        <y>60</y>
+        <width>591</width>
+        <height>401</height>
        </rect>
       </property>
      </widget>
@@ -863,7 +874,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>151</width>
+        <width>171</width>
         <height>31</height>
        </rect>
       </property>
@@ -874,34 +885,63 @@
      <widget class="QPushButton" name="proudExport">
       <property name="geometry">
        <rect>
-        <x>180</x>
+        <x>190</x>
         <y>10</y>
-        <width>161</width>
+        <width>171</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Export proudnic</string>
+       <string>Exportovat proudnice</string>
       </property>
      </widget>
-     <widget class="QListWidget" name="listWidget">
+     <widget class="QWidget" name="widgetTracer" native="true">
       <property name="geometry">
        <rect>
-        <x>460</x>
-        <y>10</y>
-        <width>256</width>
-        <height>192</height>
+        <x>610</x>
+        <y>290</y>
+        <width>591</width>
+        <height>401</height>
        </rect>
       </property>
      </widget>
-     <widget class="QListWidget" name="listWidget_2">
+     <widget class="QPushButton" name="pushButton_11">
       <property name="geometry">
        <rect>
-        <x>760</x>
+        <x>620</x>
         <y>10</y>
-        <width>256</width>
-        <height>192</height>
+        <width>171</width>
+        <height>31</height>
        </rect>
+      </property>
+      <property name="text">
+       <string>Zobrazit stopovací zkoušku</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_12">
+      <property name="geometry">
+       <rect>
+        <x>800</x>
+        <y>10</y>
+        <width>171</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Exportovat stopovací zkoušku</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_40">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>500</y>
+        <width>121</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Návratnost stopovače:</string>
       </property>
      </widget>
     </widget>

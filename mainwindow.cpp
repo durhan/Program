@@ -14,7 +14,7 @@
 #include <qwt_legend.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
-
+#include <qwt_scale_widget.h>
 #include <qwt_plot_histogram.h>
 #include <qwt_samples.h>
 #include <qwt_plot_barchart.h>
@@ -24,6 +24,9 @@
 #include<iostream>
 
 QwtPlot *rez=NULL, *mapa=NULL, *grafProudnice=NULL, *grafTracer=NULL, *prurez=NULL;
+vector<double> casy,delky;
+
+double zet[6], Ha;
 
 class SpectrogramData: public QwtRasterData
 {
@@ -68,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_16->setValidator(new QDoubleValidator(this));
     ui->lineEdit_17->setValidator(new QDoubleValidator(this));
     ui->lineEdit_18->setValidator(new QDoubleValidator(this));
-    ui->lineEdit_19->setValidator(new QDoubleValidator(this));
+    //ui->lineEdit_19->setValidator(new QDoubleValidator(this));
     ui->lineEdit_20->setValidator(new QDoubleValidator(this));
     ui->lineEdit_21->setValidator(new QDoubleValidator(this));
 }
@@ -86,38 +89,34 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-QMessageBox::critical(NULL,"problem",QString::number(N));
+QMessageBox::critical(NULL,"problem",QString::number(N)); // tohle asi nahradi smysluplny obsah... nebo to pujde pryc i s tlacitkem
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 {
     //testovaci_input();
     readLayers();
+    readWells();
 
-    QGraphicsScene * schema = new QGraphicsScene();
-
-    for (int i=0;i<6;i++)
-    {
-    QGraphicsLineItem * hloubka = new QGraphicsLineItem();
-    hloubka->setLine(0,z[i],100,z[i]);
-    schema->addItem(hloubka);
-}
-    ui->graphicsView->setScene(schema);
-    ui->graphicsView->fitInView(schema->sceneRect());
     //-------udelame to vse jako histogram
-    // a to nas rozesmeje
 
-   rez = new QwtPlot(ui->FrameHH);
-   rez ->setTitle("geologicke vrstvy");
-   rez ->setCanvasBackground(Qt::white);
-   rez->setAxisScale(QwtPlot::yLeft, z[0], z[N]);
-   rez->setAxisScale(QwtPlot::xBottom, -L/2 ,L*1.5);
-   rez->insertLegend(new QwtLegend);
+    if(rez == NULL) {
+        rez = new QwtPlot(ui->FrameHH);
+        rez->setTitle("Řez hydraulické výšky v linii vrtů");
+        rez->setCanvasBackground(Qt::white);
+        rez->setAxisTitle(QwtPlot::xBottom,"x[m]");
+
+        rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
+        //rez->insertLegend(new QwtLegend);
+    }
+    rez->detachItems(QwtPlotItem::Rtti_PlotHistogram); // zbavi graf vsech...
+    rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
+    rez->setAxisScale(QwtPlot::yLeft, zet[N], zet[0]);
 
    QVector <QwtIntervalSample> X,Y,S1,S2;
 
    //----------pridam hladinu
-   Y.push_back(QwtIntervalSample((1.5*L)+5,0,H));
+   Y.push_back(QwtIntervalSample((1.5*L)+5,0,Ha));
 
    QwtPlotHistogram *hladina = new QwtPlotHistogram ("hladina");
    hladina->setSamples(Y);
@@ -128,7 +127,7 @@ void MainWindow::on_pushButton_clicked()
 //--------geol rez
    for (int i=0; i<N; i++)
    {
-   X.push_back(QwtIntervalSample((1.5*L)+5,z[i],z[i+1]));
+   X.push_back(QwtIntervalSample((1.5*L)+5,zet[i],zet[i+1]));
 
    QwtPlotHistogram *vrstva = new QwtPlotHistogram("vrstva");
    vrstva->setSamples(X);
@@ -139,19 +138,21 @@ void MainWindow::on_pushButton_clicked()
    }
 
 //-----pridam studny
-   S1.push_back(QwtIntervalSample(z[N],0-r[0],0+r[1]));
-   S2.push_back(QwtIntervalSample(z[N],L-r[0],L+r[1]));
+   S1.push_back(QwtIntervalSample(zet[N],0-r[0],0+r[0]));
+   S2.push_back(QwtIntervalSample(zet[N],L-r[1],L+r[1]));
 
    QwtPlotHistogram *studna1 = new QwtPlotHistogram ("studna 1.");
-   QwtPlotHistogram *studna2 = new QwtPlotHistogram ("studna  2.");
+   QwtPlotHistogram *studna2 = new QwtPlotHistogram ("studna 2.");
    studna1->setSamples(S1);
    studna2->setSamples(S2);
    studna1->attach(rez);
    studna2->attach(rez);
 
    rez->resize(ui->FrameHH->width(),ui->FrameHH->height());
+   rez->replot();
    rez->show();
-    
+
+   ui->tabWidget->setCurrentIndex(2);
 }
 
 void MainWindow::on_lineEdit_returnPressed()
@@ -254,6 +255,8 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
 
+    on_pushButton_clicked(); //experimentalni
+
     logInput();
 
     //if(rez != NULL)
@@ -268,12 +271,13 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
         x[i] = i - L/2;
         if(isnan(x[i]))
         {
+            if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
             logfile << "ERROR: REZ: x[i] = nan" << endl;
             logfile << "i    = " << i << endl;
             logfile << "xDim = " << xDim << endl;
             return;
         }
-        rezh[i] = hydraulic_head(x[i],0.0);
+        rezh[i] = zet[N] - hydraulic_head(x[i],0.0);
     }
 
     // a ted to cele vynest:
@@ -282,13 +286,14 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
         rez = new QwtPlot(ui->FrameHH);
         rez->setTitle("Řez hydraulické výšky v linii vrtů");
         rez->setCanvasBackground(Qt::white);
-        rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
+        // set axis scale nesmi byt podminene novym grafem - jinak to ignoruje zmenu L ve vstupnich datech
         rez->setAxisTitle(QwtPlot::xBottom,"x[m]");
-        rez->setAxisScale(QwtPlot::yLeft, H-1, H+1);
         rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
         rez->insertLegend(new QwtLegend);
     }
     rez->detachItems(QwtPlotItem::Rtti_PlotCurve); // zbavi graf vsech...
+    rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
+    rez->setAxisScale(QwtPlot::yLeft, zet[N], zet[0]);
 
     QwtPlotCurve *krivka = new QwtPlotCurve("hydraulická výška");
     krivka->setSamples( x, rezh, xDim);
@@ -300,6 +305,7 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     mrizka->attach(rez);
 
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
+    rez->replot();
     rez->show();
 }
 
@@ -321,14 +327,16 @@ void MainWindow::on_pushButton_4_clicked() // TAB: REZ HYDRAULICKE VYSKY, zmena 
     if(rez==NULL)
         return;
 
-    double ymin = ui->hhymin->text().toDouble();
-    double ymax = ui->hhymax->text().toDouble();
+    QLocale loc(QLocale::system());
+
+    double ymin = loc.toDouble(ui->hhymin->text());
+    double ymax = loc.toDouble(ui->hhymax->text());
 
     if(ui->hhymin->text().isEmpty())
-        ymin = z[0];
+        ymin = zet[N];
 
     if(ui->hhymax->text().isEmpty())
-        ymax = z[N];
+        ymax = zet[0];
 
     rez->setAxisScale(QwtPlot::yLeft, ymin, ymax);
     rez->replot();
@@ -345,15 +353,18 @@ void ExportPlot(QwtPlot *arg, const char *filename)
     QPixmap qPix = arg->grab();
 
     if(qPix.isNull()){
-        logfile << "Export: Failed to capture the plot '" << filename << "' for saving." << endl;
+        if(!logfile.is_open())
+            logfile.open("log.txt",ios_base::app);
+        logfile << "ExportPlot: Failed to capture the plot '" << filename << "' for saving." << endl;
         return;
     }
 
     //QFileDialog *saving = new QFileDialog(NULL,"Kepsn", "c:/");
+    QString fname = QFileDialog::getSaveFileName(NULL,"Uložit jako",".","*.png");
 
 
     //QFileDialog(ui,"Export řezu hydraulické výšky", new QString("C:/"), new QString(".png"));
-    qPix.save(filename,"PNG",85);
+    qPix.save(fname,"PNG",85);
 }
 
 void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
@@ -405,7 +416,10 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     graf->setData(obsah);
     graf->attach(mapa);
 
+    //barvy
     QwtLinearColorMap *barvy = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB);
+    //barvy->addColorStop(H-.05,Qt::darkGreen);
+    //barvy->addColorStop(H+.05,Qt::darkGreen);
     graf->setColorMap(barvy);
 
     //kontury ----------------------------------------------------------
@@ -433,6 +447,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     kontury->setColorMap(barvy_kontur);
 
     // legenda -----------------------------------------------------------
+    //_
     mapa->setAxisScale( QwtPlot::yRight, zmin, zmax);
     mapa->enableAxis(QwtPlot::yRight);
     QwtLinearColorMap *barvy2 = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB); // argh! podruhe ta sama QwtColorMap, ptz kopirovaci konstruktor je private a pouzit znova prvni mapu crashlo Skvost pri ukoncovani!
@@ -462,10 +477,9 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 
   if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
   {
-      QMessageBox::warning(NULL,"Chyba!","Zadejte vydatnost!");
+      QMessageBox::warning(NULL,"Chyba!","Zadejte obě vydatnosti!");
       return;
   }
-
     s[0]=wellDrawdown(0);
     s[1]=wellDrawdown(1);
 
@@ -479,30 +493,35 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
 
+    casy.clear();
+    delky.clear();
+
     double krok = .03;
 
     // zaznamenavam cele proudnice plus casy
-    vector<double> X,Y,T;
+    vector<double> X,Y;
+    casy.reserve(3000);
 
     //ciste pole
     if(grafProudnice!=NULL)
         delete grafProudnice;
 
-    if(grafTracer!=NULL)
-        delete grafTracer;
+//    if(grafTracer!=NULL)
+//        delete grafTracer;
 
-    //zalozit oba grafy
     grafProudnice = new QwtPlot(ui->widgetProudnice);
-    grafTracer = new QwtPlot(ui->widgetTracer);
+    //grafTracer = new QwtPlot(ui->widgetTracer);
 
-    ofstream outfile("proudnice.txt",ios_base::app);
-    int poradove_cislo=1;
+    ofstream outfile("proudnice.txt",ios_base::out);
+    int pocet_proudnic = 0;
+    int pocet_dorazivsich = 0;
+    int cislo_proudnice = 0;
 
-    outfile << __TIMESTAMP__ << endl;
+    outfile << __DATE__ << " " << __TIME__ << endl;
 
     double krokfi = 2.0*M_PI/26;
 
-    double z0 = 0.0;
+    double z0 = 0.0; // pocitam jen pro prvni vrstvu
     double x[2], y[2], t; //startovni body
 
     for(int j = 0; j < 2; j++)
@@ -516,22 +535,27 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
             X.clear();
             Y.clear();
+            EndPoint konec = other;
 
-            t = track_point(x[j], y[j], z0, sgn(Q[j]) * krok, &X, &Y); //
+            t = track_point(x[j], y[j], z0, sgn(Q[j]) * krok, &X, &Y, &konec); //
 
             if(X.size() == 0)
                 continue;
 
             //zaznamenat "cestovni cas" trajektorie, pokud skoncila v nekterem vrtu
-            double ro[] = {sqrt(pow(X[X.size()-1],2) + pow(Y[Y.size()-1],2)), sqrt(pow(X[X.size()-1]-L,2) + pow(Y[Y.size()-1],2))};
-            for(int k = 0; k < 2; k++)
-                if(ro[k] < r[k])
-                    T.push_back(t); // sbirame casy z obou studni
+            if ((Q[j] > 0) && (Q[1-j] <=0)) { // sbirame casy jen ze zdrojove studny a jen pokud ta druha taky neni zdrojova
+                pocet_proudnic++;
+                if(konec == well) {
+                    casy.push_back(t);
+                    delky.push_back(X.size()*krok);
+                    pocet_dorazivsich++;
+                }
+            }
 
             // kazdou smysl majici trajektorii zapiseme do souboru
             if(X.size() > 1)
             {
-                outfile << "proudnice c. " << poradove_cislo++ << "\tdoba [s]: " << t << endl;
+                outfile << "proudnice c. " << ++cislo_proudnice << "\tdoba [s]: " << t << endl;
                 for(unsigned int i = 0; i < X.size(); i++)
                 {
                     outfile << X[i] << '\t' << Y[i] << endl;
@@ -550,7 +574,7 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
             proudnice->setPen(barva,1.0);
             proudnice->attach(grafProudnice);
-        } // for fi
+        } // for i
     } //for j
 
     double pom = 1.0*grafProudnice->parentWidget()->height()/grafProudnice->parentWidget()->width();
@@ -560,13 +584,7 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     grafProudnice->setAxisTitle(QwtPlot::yLeft,"y [m]");
     grafProudnice->resize(grafProudnice->parentWidget()->width(),grafProudnice->parentWidget()->height());
 
-    grafProudnice->show();
-
-    pom = 1.0*grafTracer->parentWidget()->height()/grafTracer->parentWidget()->width();
-    grafTracer->setAxisScale(QwtPlot::xBottom, -L, L);
-    grafTracer->setAxisScale(QwtPlot::yLeft, -L*pom, L*pom);
-
-    grafTracer->show();
+    grafProudnice->show();                                            
 
     outfile.close();
 }
@@ -622,7 +640,29 @@ void MainWindow::on_proudExport_clicked()
 
 void MainWindow::on_pushButton_10_clicked() // odhad dosahu depr kuzele
 {
-    // empty :(((
+    // upraveny Kusakinuv vzorec (je empiricky a pro zvoden s volnou hladinou)
+    if(!readLayers())
+    {
+        QMessageBox::critical(NULL,"Chyba","Nepodařilo se načíst údaje o vrstvách.");
+        return;
+    }
+
+    if(ui->lineEdit_13->text().isEmpty())
+    {
+        s[0] = wellDrawdown(0);
+        ui->lineEdit_13->setText(QString::number(s[0],'g',2));
+    }
+    if(ui->lineEdit_16->text().isEmpty())
+    {
+        s[1] = wellDrawdown(1);
+        ui->lineEdit_16->setText(QString::number(s[0],'g',2));
+    }
+
+    R[0] = 575 * fabs(s[0]) * sqrt(T);
+    R[1] = 575 * fabs(s[1]) * sqrt(T);
+
+    ui->lineEdit_20->setText(QString::number(R[0],'f',1));
+    ui->lineEdit_21->setText(QString::number(R[1],'f',1));
 }
 
 bool MainWindow::readLayers()
@@ -642,11 +682,13 @@ bool MainWindow::readLayers()
     QLocale loc(QLocale::system());
 
     // hloubky rozhrani a hydraulicke vodivosti vrstev
-    for(int i = 0; i < 6; i++)
+    for(int i = 0; i < 5; i++)
     {
         K[i] = 0;
-        z[i] = 0;
+        z[i] = zet[i] = 0;
     }
+    z[5] = zet[5] = 0;
+
 
     z[0] = 0; // v tehle fazi teren
     z[1] = loc.toDouble(ui->lineEdit->text()); // musi byt zadano aspon tohle
@@ -679,6 +721,9 @@ bool MainWindow::readLayers()
         }
     }
 
+    for(int i = 0; i < 6; i++)
+        zet[i] = z[i];
+
     // vzdalenost mezi studnami
     L = loc.toDouble(ui->lineEdit_17->text());
 
@@ -701,18 +746,22 @@ bool MainWindow::readLayers()
 
     for(int i = 0; i < (N+1)/2; i++)
     {
-        double pom, pom2;
+        double pom;
         pom = z[i];
         z[i] = z[N-i];
         z[N-i] = pom;
+    }
 
-        pom2 = K[i];
-        K[i] = K[N-i];
-        K[N-i]= pom2;
+    for(int i = 0; i < N/2; i++) // protoze pole K je o prvek kratsi nez pole z - prohazovani jednim vrzem neni cesta
+    {
+        double pom;
+        pom = K[i];
+        K[i] = K[N-i-1];
+        K[N-i-1]= pom;
     }
 
     // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
-    H = loc.toDouble(ui->lineEdit_18->text());
+    H = Ha = loc.toDouble(ui->lineEdit_18->text());
     if(H < .000001)
     {
         QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
@@ -729,9 +778,8 @@ bool MainWindow::readLayers()
     d[4] = z[5] - z[4];
 
     int n = getLayer(H);
-    cerr << "n = " << n << endl;
 
-    // pripad hodnoty H nad terenem, tj. pocitame transmisivitu pres vsechny vrstvy:
+    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
     if(n==-1)
         n = N;
 
@@ -818,3 +866,115 @@ int MainWindow::readN()
 }
 
 
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    // aha ...
+    // spocitat hodnoty do grafu pro tracer test:
+
+    if(casy.size() == 0)
+    {
+        // chyba
+        return;
+    }
+
+    vector<double> newT;
+    double D = 5e-5 *3600*24; // m^2/d
+
+    newT.reserve(casy.size()*9 * fabs(z[0] - z[N])*10);
+
+    for(unsigned int i = 0; i < casy.size(); i++)
+    {
+        casy[i]/=3600*24; // prevod na dny
+
+    // rozpocitat casy podle hodnoty koef. hydrodyn. disperze
+
+    // budeme to povazovat za 1D
+    // rychlost proudeni berem prumernou (z celkoveho casu a celkove drahy)
+    // normalizovane normalni rozdeleni:
+    // - po 1 castici na +/- 2*sigma
+    // - po 2 casticich na +/- 1*sigma
+    // - 3 castice na 0*sigma, tj. T[i]
+    // ... takze v intervalu < -sigma; sigma> je 2+3+2 = 7 bodu z 9 (ma odpovidat 68%)
+
+
+        double sigma = sqrt(2*D*casy[i])/delky[i]*casy[i]; // vydeleno stredni obj. hust. toku // d
+
+        newT.push_back(casy[i] - 2*sigma);
+        newT.push_back(casy[i] - sigma);
+        newT.push_back(casy[i] - sigma);
+        newT.push_back(casy[i]);
+        newT.push_back(casy[i]);
+        newT.push_back(casy[i]);
+        newT.push_back(casy[i] + sigma);
+        newT.push_back(casy[i] + sigma);
+        newT.push_back(casy[i] + 2*sigma);
+    }
+
+    // spocitat casy pro ostatni hloubky (prepocet na jine K)
+    // opakovane projizdime puvodne spocitane casy (pro z = 0)
+    int pocet_casu = newT.size();
+    for(double z = 0.1; z < H; z+=.1) // protoze pro z=0 uz to mame v T
+    {
+        double k = getK(z);
+        for(unsigned int i = 0; i < pocet_casu; i++)
+            newT.push_back(newT[i]*K[0]/k);
+    }
+
+    // setridit a spocitat histogram:
+
+//    H.push_back(QwtIntervalSample(val, min, max));
+    std::sort(newT.begin(),newT.end());
+    int pocet_kategorii = 30; // dejme tomu
+    int hist[pocet_kategorii] = {0};
+    double rozpeti = newT[newT.size()-1] - newT[0];
+
+    int kategorie = 0;
+    for(unsigned int i = 0; i < newT.size(); i++)
+    {
+        double horni_mez_kategorie = rozpeti / pocet_kategorii * (kategorie+1);
+        if(newT[i] >= horni_mez_kategorie)
+            kategorie++;
+        hist[kategorie]++;
+    }
+
+    QVector <QwtIntervalSample> H;
+    for(kategorie = 0; kategorie < pocet_kategorii; kategorie++)
+    {
+        double min = rozpeti / pocet_kategorii * kategorie;
+        double max = rozpeti / pocet_kategorii * (kategorie+1);
+        double val = 100.0 * hist[kategorie]/newT.size();
+        //cerr << kategorie << ". ----- " << val << endl;
+        H.push_back(QwtIntervalSample(val, min, max));
+    }
+
+    // vynest tracer test
+    if(grafTracer == NULL) {
+        grafTracer = new QwtPlot(ui->widgetTracer);
+        grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
+        grafTracer->setCanvasBackground(Qt::white);
+        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
+        grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
+    }
+    grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
+    grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
+    grafTracer->setAxisScale(QwtPlot::xBottom, newT[0] , newT[newT.size()-1]);
+
+    cerr << "newT[0] = " << newT[0] << endl;
+    cerr << "newT[newT.size()-1] = " << newT[newT.size()-1] << endl << endl;
+    cerr << "casy[0] = " << casy[0] << endl;
+    cerr << "casy[casy.size()-1] = " << casy[casy.size()-1] << endl;
+    // sem prijde kod pro vyneseni histogramu
+    QwtPlotHistogram *Histo = new QwtPlotHistogram;
+    Histo->setSamples(H);
+    Histo->attach(grafTracer);
+
+    grafTracer->resize(grafTracer->parentWidget()->width(), grafTracer->parentWidget()->height());
+    grafTracer->replot();
+    grafTracer->show();
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+    ExportPlot(grafTracer, "tracertest.png");
+}

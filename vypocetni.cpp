@@ -13,8 +13,7 @@ double Q[2], r[2], R[2], s[2];
 double L, T, H;
 ofstream logfile;//("log.txt",ios_base::ate);
 
-double getK(double Z);
-int getLayer(double Z);
+//int getLayer(double Z);
 void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
 double Integral(double h);
@@ -57,8 +56,6 @@ double wellDrawdown(int idx)
         logfile << "wellDrawdown: bad parameter value!" << endl;
         return 0.0;
     }
-    cout << "H = " << H << endl;
-    cout << "h = " << hydraulic_head(fabs(idx*L - r[idx]),0) << endl;
     return (H - hydraulic_head(fabs(idx*L - r[idx]),0)); // mwahaha! ... :) vyuzivam toho, ze studna[0] ma vzdycky souradnice [0,0] a druha [L,0]
 }
 
@@ -72,53 +69,59 @@ double hydraulic_head(double x, double y)
         return hydraulic_head(r[0],0);
 
     if(r2 < r[1])
-        return hydraulic_head(L+r[1],0);
+        return hydraulic_head(L-r[1],0);
 
-//	double I0 = Integral(0);
-    double Gh = GirPot(r1, r2);// - I0; // vyzaduje Q-cka
+    if((r1 > R[0]) && (r2 > R[1]))
+        return H;
+
+    double Gh = GirPot(r1, r2); // vyzaduje Q-cka
     
-    if(Gh == 0)
+    if(Gh >= 0)
         return 0;
-    
-	double GH = Integral(H);// - I0;
 
-    //cout << "Gh = " << Gh << endl;
-	double h_odhad;// = Gh/GH * H;
-/*	double h_pom = H;
-	double alfa = 0.6; // tlumic kroku
+    double h_odhad;
+    double a,b;
+
+    a = 0;
+    b = 50;
+
+    // pro pripad, ze by h > 50:
+    while(Gh < Integral(b))
+    {
+        a = b - 1; // nastavim a kousek pod b
+        b+= 10; // postrcim b o kus nahoru
+    }
+
+/*    cout << "Gh = " << Gh << endl;
+    cout << "sa = " << sa << endl;
+    cout << "sb = " << sb << endl;
+    cout << "r1 = " << r1 << endl;
+    cout << "r2 = " << r2 << endl;
+    cout << "IH = " << Integral(H) << endl;
 */
-	double a,b;
-    
-	if(Gh>0) {
-        a = -500;
-        b = 0; }
-    
-    if(Gh<0) {
-        a = 0;
-        b = 500; }
-
-    double sa = sgn(Gh - Integral(a));
-    double sb = sgn(Gh - Integral(b));
-    
     do {
 		h_odhad = (a + b)/2;
         double fh = Gh - Integral(h_odhad);
         
-        if( sgn(fh) == sa )
+        if( sgn(fh) == -1 )
             a = h_odhad;
         
-        if( sgn(fh) == sb )
+        if( sgn(fh) ==  1 )
             b = h_odhad;
 
-	} while(fabs(b-a) > 1e-4); // hyd. vyska s chybou .5 mm musi stacit kazdymu
-	//cout << "Integral(h_odhad) = " << Integral(h_odhad) << endl;
-	return h_odhad;
+        if( sgn(fh) ==  0 )
+            return h_odhad;
+
+    } while(fabs(b-a) > 1e-4); // hyd. vyska s chybou .1 mm musi stacit kazdymu
+
+    return (a + b)/2;
 }
 
 double GirPot(double r1, double r2)
 {
     if((sgn(r1) < 1) || (sgn(r2) < 1))
     {
+        if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
         logfile << "GirPot: error: nekladny argument!" << endl;
         return 0.0;
     }
@@ -159,20 +162,23 @@ int getLayer(double Z)
 	return -1;
 }
 
-double track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y)
+double track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, EndPoint *ep)
 {
 	double T;
 	
-	track_point(x0, y0, z0, krok, X, Y, &T);
+    track_point(x0, y0, z0, krok, X, Y, &T, ep);
 	
 	return T;
 }
 
-void track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, double *T)
+void track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, double *T, EndPoint *ep)
 {
 	X->clear();
 	Y->clear();
 	*T = 0;
+
+    X->reserve(10000);
+    Y->reserve(10000);
 
     if(!logfile.is_open())
         logfile.open("log.txt",ios_base::app);
@@ -211,6 +217,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "y = " << y << endl;
             logfile << "v = " << vel << endl;
             logfile << "Starting point: [ " << x0 << ", " << y0  << ", " << z0 << "]." << endl;
+            if(ep != NULL)
+                *ep = other;
             return;
         }
 
@@ -223,6 +231,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             logfile << "y = " << y << endl;
             logfile << "v = " << vel << endl;
             logfile << "Starting point: [ " << x0 << ", " << y0 << ", " << z0 << "]." << endl;
+            if(ep != NULL)
+                *ep = other;
             return;
         }
 		
@@ -237,6 +247,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             X->pop_back();
             Y->pop_back();
             Y->pop_back();
+            if(ep != NULL)
+                *ep = watershed;
             return;
         }}
 		double dx = vx * dt;
@@ -249,12 +261,17 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 		l[0] = sqrt(x*x+y*y); // vzdalenost sledovane castice od prvni/druhe studny
 		l[1] = sqrt((x-L)*(x-L)+y*y);
 	
-#ifdef DEBUG
-		cout << "l[0] = " << l[0] << endl;
-		cout << "l[1] = " << l[1] << endl;
-#endif
-		
+        if(ep != NULL) {
+
+            if((l[0] < r[0]) || (l[1] < r[1]))
+                *ep = well;
+
+            if((l[0] > R[0]*.99) || (l[1] > R[1]*.99))
+                *ep = range;
+        }
+
     } while ( !( (l[0]<r[0]) || (l[1]<r[1]) || ( (l[0]>R[0]*.99) && (l[1]>R[1]*.99) )   ));
+
 }
 
 void simple_track_point(double x0, double y0, double krok, vector<double> *X, vector<double> *Y) // trajektorie konci, jakmile se dostaneme do vrtu
@@ -295,8 +312,10 @@ double Integral(double h)
 	bool konec = false;
 	double Pot = 0.0;
     
-    if(h < 0)
+    if(h < 0) {
+        if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
         logfile << "Integral: warning: argument < 0" << endl;
+    }
     
 	for(int i=0; i<N; i++)
 	{
@@ -310,12 +329,7 @@ double Integral(double h)
 			b = h;
 			konec = true;
 		}
-/*		cout << "N = " << N << endl;
-		cout << "a = " << a << endl;
-        cout << "b = " << b << endl;
-        cout << "h = " << h << endl;
-        cout << "K[i] = " << K[i] << endl;
-*/
+
 		Pot+= IntegralOverOneLayer(a,b,K[i],h);
 
 		if (konec) break;
@@ -380,20 +394,13 @@ void testovaci_input()
         cout << "Logfile is NOT open." << endl;
 
         // udaje o studnach:
-    Q[0] =-.0005; // m3/s Q<0 cerpani, Q>0 zasakovani
+    Q[0] =-.005; // m3/s Q<0 cerpani, Q>0 zasakovani
     Q[1] = .003; // m3/s
     r[0] = r[1] = .125; //m
-<<<<<<< HEAD
-    R[0] = 160;
-    R[1] = 135; //m
-    s[0] = 2.5;
-    s[1] =-1.5;
-=======
     R[0] = 100;
     R[1] = 60; //m
     s[0] = .43;
     s[1] =-.2;
->>>>>>> origin/master
 
     L = 50.0; // m
 
@@ -440,6 +447,14 @@ void testovaci_input()
         //logfile << "z[" << i << "] = " << z[i] << endl;
     }
 
+    for(int i = 0; i < N/2; i++)
+    {
+        double pom;
+        pom = K[i];
+        K[i] = K[N-i-1];
+        K[N-i-1] = pom;
+        //logfile << "K[" << i << "] = " << K[i] << endl;
+    }
     H = Z_base - H;
 }
 
