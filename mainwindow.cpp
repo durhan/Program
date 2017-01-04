@@ -24,6 +24,7 @@
 #include<iostream>
 
 QwtPlot *rez=NULL, *mapa=NULL, *grafProudnice=NULL, *grafTracer=NULL, *prurez=NULL;
+vector<double> casy,delky;
 
 double zet[6], Ha;
 
@@ -70,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_16->setValidator(new QDoubleValidator(this));
     ui->lineEdit_17->setValidator(new QDoubleValidator(this));
     ui->lineEdit_18->setValidator(new QDoubleValidator(this));
-    ui->lineEdit_19->setValidator(new QDoubleValidator(this));
+    //ui->lineEdit_19->setValidator(new QDoubleValidator(this));
     ui->lineEdit_20->setValidator(new QDoubleValidator(this));
     ui->lineEdit_21->setValidator(new QDoubleValidator(this));
 }
@@ -95,6 +96,7 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 {
     //testovaci_input();
     readLayers();
+    readWells();
 
     //-------udelame to vse jako histogram
 
@@ -148,7 +150,9 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 
    rez->resize(ui->FrameHH->width(),ui->FrameHH->height());
    rez->replot();
-   rez->show();    
+   rez->show();
+
+   ui->tabWidget->setCurrentIndex(2);
 }
 
 void MainWindow::on_lineEdit_returnPressed()
@@ -489,11 +493,14 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
 
+    casy.clear();
+    delky.clear();
+
     double krok = .03;
 
     // zaznamenavam cele proudnice plus casy
-    vector<double> X,Y,T;
-    T.reserve(3000);
+    vector<double> X,Y;
+    casy.reserve(3000);
 
     //ciste pole
     if(grafProudnice!=NULL)
@@ -539,7 +546,8 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
             if ((Q[j] > 0) && (Q[1-j] <=0)) { // sbirame casy jen ze zdrojove studny a jen pokud ta druha taky neni zdrojova
                 pocet_proudnic++;
                 if(konec == well) {
-                    T.push_back(t);
+                    casy.push_back(t);
+                    delky.push_back(X.size()*krok);
                     pocet_dorazivsich++;
                 }
             }
@@ -576,67 +584,7 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     grafProudnice->setAxisTitle(QwtPlot::yLeft,"y [m]");
     grafProudnice->resize(grafProudnice->parentWidget()->width(),grafProudnice->parentWidget()->height());
 
-    grafProudnice->show();
-
-    // spocitat hodnoty do grafu pro tracer test:
-    for(unsigned int i = 0; i < T.size(); i++)
-        T[i]/=3600/24; // prevod na dny
-
-    // spocitat casy pro ostatni hloubky (prepocet na jine K)
-    for(double z = 0.1; z < H; z+=.1) // protoze pro z=0 uz to mame v T
-    {
-        double k = getK(z);
-        for(unsigned int i = 0; i < pocet_dorazivsich; i++)
-            T.push_back(T[i]*K[0]/k);
-    }
-
-    // setridit a spocitat histogram:
-
-//    H.push_back(QwtIntervalSample(val, min, max));
-    std::sort(T.begin(),T.end());
-    int pocet_kategorii = 30; // dejme tomu
-    int hist[pocet_kategorii] = {0};
-    double rozpeti = T[T.size()-1] - T[0];
-
-    int kategorie = 0;
-    for(unsigned int i = 0; i < T.size(); i++)
-    {
-        double horni_mez_kategorie = rozpeti / pocet_kategorii * (kategorie+1);
-        if(T[i] >= horni_mez_kategorie)
-            kategorie++;
-        hist[kategorie]++;
-    }
-
-    QVector <QwtIntervalSample> H;
-    for(kategorie = 0; kategorie < pocet_kategorii; kategorie++)
-    {
-        double min = rozpeti / pocet_kategorii * kategorie;
-        double max = rozpeti / pocet_kategorii * (kategorie+1);
-        double val = 100.0 * hist[kategorie]/T.size();
-        //cerr << kategorie << ". ----- " << val << endl;
-        H.push_back(QwtIntervalSample(val, min, max));
-    }
-
-    // vynest tracer test
-    if(grafTracer == NULL) {
-        grafTracer = new QwtPlot(ui->widgetTracer);
-        grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
-        grafTracer->setCanvasBackground(Qt::white);
-        grafTracer->setAxisScale(QwtPlot::xBottom, T[0] , T[T.size()-1]);
-        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
-        grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
-        grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
-    }
-    grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
-
-    // sem prijde kod pro vyneseni histogramu
-    QwtPlotHistogram *Histo = new QwtPlotHistogram;
-    Histo->setSamples(H);
-    Histo->attach(grafTracer);
-
-    grafTracer->resize(grafTracer->parentWidget()->width(), grafTracer->parentWidget()->height());
-    grafTracer->replot();
-    grafTracer->show();
+    grafProudnice->show();                                            
 
     outfile.close();
 }
@@ -918,3 +866,115 @@ int MainWindow::readN()
 }
 
 
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    // aha ...
+    // spocitat hodnoty do grafu pro tracer test:
+
+    if(casy.size() == 0)
+    {
+        // chyba
+        return;
+    }
+
+    vector<double> newT;
+    double D = 5e-5 *3600*24; // m^2/d
+
+    newT.reserve(casy.size()*9 * fabs(z[0] - z[N])*10);
+
+    for(unsigned int i = 0; i < casy.size(); i++)
+    {
+        casy[i]/=3600*24; // prevod na dny
+
+    // rozpocitat casy podle hodnoty koef. hydrodyn. disperze
+
+    // budeme to povazovat za 1D
+    // rychlost proudeni berem prumernou (z celkoveho casu a celkove drahy)
+    // normalizovane normalni rozdeleni:
+    // - po 1 castici na +/- 2*sigma
+    // - po 2 casticich na +/- 1*sigma
+    // - 3 castice na 0*sigma, tj. T[i]
+    // ... takze v intervalu < -sigma; sigma> je 2+3+2 = 7 bodu z 9 (ma odpovidat 68%)
+
+
+        double sigma = sqrt(2*D*casy[i])/delky[i]*casy[i]; // vydeleno stredni obj. hust. toku // d
+
+        newT.push_back(casy[i] - 2*sigma);
+        newT.push_back(casy[i] - sigma);
+        newT.push_back(casy[i] - sigma);
+        newT.push_back(casy[i]);
+        newT.push_back(casy[i]);
+        newT.push_back(casy[i]);
+        newT.push_back(casy[i] + sigma);
+        newT.push_back(casy[i] + sigma);
+        newT.push_back(casy[i] + 2*sigma);
+    }
+
+    // spocitat casy pro ostatni hloubky (prepocet na jine K)
+    // opakovane projizdime puvodne spocitane casy (pro z = 0)
+    int pocet_casu = newT.size();
+    for(double z = 0.1; z < H; z+=.1) // protoze pro z=0 uz to mame v T
+    {
+        double k = getK(z);
+        for(unsigned int i = 0; i < pocet_casu; i++)
+            newT.push_back(newT[i]*K[0]/k);
+    }
+
+    // setridit a spocitat histogram:
+
+//    H.push_back(QwtIntervalSample(val, min, max));
+    std::sort(newT.begin(),newT.end());
+    int pocet_kategorii = 30; // dejme tomu
+    int hist[pocet_kategorii] = {0};
+    double rozpeti = newT[newT.size()-1] - newT[0];
+
+    int kategorie = 0;
+    for(unsigned int i = 0; i < newT.size(); i++)
+    {
+        double horni_mez_kategorie = rozpeti / pocet_kategorii * (kategorie+1);
+        if(newT[i] >= horni_mez_kategorie)
+            kategorie++;
+        hist[kategorie]++;
+    }
+
+    QVector <QwtIntervalSample> H;
+    for(kategorie = 0; kategorie < pocet_kategorii; kategorie++)
+    {
+        double min = rozpeti / pocet_kategorii * kategorie;
+        double max = rozpeti / pocet_kategorii * (kategorie+1);
+        double val = 100.0 * hist[kategorie]/newT.size();
+        //cerr << kategorie << ". ----- " << val << endl;
+        H.push_back(QwtIntervalSample(val, min, max));
+    }
+
+    // vynest tracer test
+    if(grafTracer == NULL) {
+        grafTracer = new QwtPlot(ui->widgetTracer);
+        grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
+        grafTracer->setCanvasBackground(Qt::white);
+        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
+        grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
+    }
+    grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
+    grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
+    grafTracer->setAxisScale(QwtPlot::xBottom, newT[0] , newT[newT.size()-1]);
+
+    cerr << "newT[0] = " << newT[0] << endl;
+    cerr << "newT[newT.size()-1] = " << newT[newT.size()-1] << endl << endl;
+    cerr << "casy[0] = " << casy[0] << endl;
+    cerr << "casy[casy.size()-1] = " << casy[casy.size()-1] << endl;
+    // sem prijde kod pro vyneseni histogramu
+    QwtPlotHistogram *Histo = new QwtPlotHistogram;
+    Histo->setSamples(H);
+    Histo->attach(grafTracer);
+
+    grafTracer->resize(grafTracer->parentWidget()->width(), grafTracer->parentWidget()->height());
+    grafTracer->replot();
+    grafTracer->show();
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+    ExportPlot(grafTracer, "tracertest.png");
+}
