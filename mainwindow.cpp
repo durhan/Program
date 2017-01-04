@@ -74,6 +74,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->lineEdit_19->setValidator(new QDoubleValidator(this));
     ui->lineEdit_20->setValidator(new QDoubleValidator(this));
     ui->lineEdit_21->setValidator(new QDoubleValidator(this));
+    ui->pushButton_9->setVisible(false);
+    ui->pushButton_10->setVisible(false);
+    ui->pushButton_9->setEnabled(false);
+    ui->pushButton_10->setEnabled(false);
+    ui->pushButton_2->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -89,7 +94,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-QMessageBox::critical(NULL,"problem",QString::number(N)); // tohle asi nahradi smysluplny obsah... nebo to pujde pryc i s tlacitkem
+    QLocale loc(QLocale::system());
+
+  ui->lineEdit_13->setText(loc.toString(s[0]));
+  ui->lineEdit_16->setText(loc.toString(s[1]));
 }
 
 void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
@@ -307,6 +315,21 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
     rez->replot();
     rez->show();
+
+  if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
+  {
+      QMessageBox::warning(NULL,"Chyba!","Zadejte obě vydatnosti!");
+      return;
+  }
+    s[0]=wellDrawdown(0);
+    s[1]=wellDrawdown(1);
+
+    QLocale loc(QLocale::system());
+
+  ui->label_43->setText(loc.toString(s[0]));
+  ui->label_52->setText(loc.toString(s[1]));
+
+  ui->pushButton_2->setEnabled(true);
 }
 
 void MainWindow::on_lineEdit_9_cursorPositionChanged(int arg1, int arg2)
@@ -483,8 +506,10 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
     s[0]=wellDrawdown(0);
     s[1]=wellDrawdown(1);
 
-  ui->lineEdit_13->setText(QString::number(s[0]));
-  ui->lineEdit_16->setText(QString::number(s[1]));
+    QLocale loc(QLocale::system());
+
+  ui->lineEdit_13->setText(loc.toString(s[0]));
+  ui->lineEdit_16->setText(loc.toString(s[1]));
 
 }
 
