@@ -1003,3 +1003,83 @@ void MainWindow::on_pushButton_12_clicked()
 {
     ExportPlot(grafTracer, "tracertest.png");
 }
+
+void write(QLineEdit *w, double val)
+{
+  QLocale loc(QLocale::system());
+
+  w->setText(loc.toString(val));
+}
+
+
+void MainWindow::on_lineEdit_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit->text().isEmpty() && !ui->lineEdit_2->text().isEmpty())
+    {
+        ui->lineEdit_3->setEnabled(true);
+        ui->lineEdit_4->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_2_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit->text().isEmpty() && !ui->lineEdit_2->text().isEmpty())
+    {
+        ui->lineEdit_3->setEnabled(true);
+        ui->lineEdit_4->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_3_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit_3->text().isEmpty() && !ui->lineEdit_4->text().isEmpty())
+    {
+        ui->lineEdit_5->setEnabled(true);
+        ui->lineEdit_6->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_4_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit_3->text().isEmpty() && !ui->lineEdit_4->text().isEmpty())
+    {
+        ui->lineEdit_5->setEnabled(true);
+        ui->lineEdit_6->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_5_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit_5->text().isEmpty() && !ui->lineEdit_6->text().isEmpty())
+    {
+        ui->lineEdit_7->setEnabled(true);
+        ui->lineEdit_8->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_6_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit_5->text().isEmpty() && !ui->lineEdit_6->text().isEmpty())
+    {
+        ui->lineEdit_7->setEnabled(true);
+        ui->lineEdit_8->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_7_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit_7->text().isEmpty() && !ui->lineEdit_8->text().isEmpty())
+    {
+        ui->lineEdit_9->setEnabled(true);
+        ui->lineEdit_10->setEnabled(true);
+    }
+}
+
+void MainWindow::on_lineEdit_8_textChanged(const QString &arg1)
+{
+    if(!ui->lineEdit_7->text().isEmpty() && !ui->lineEdit_8->text().isEmpty())
+    {
+        ui->lineEdit_9->setEnabled(true);
+        ui->lineEdit_10->setEnabled(true);
+    }
+}
