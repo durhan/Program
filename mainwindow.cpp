@@ -96,8 +96,8 @@ void MainWindow::on_pushButton_2_clicked()
 {
     QLocale loc(QLocale::system());
 
-  ui->lineEdit_13->setText(loc.toString(s[0]));
-  ui->lineEdit_16->setText(loc.toString(s[1]));
+    ui->lineEdit_13->setText(loc.toString(s[0],'f',2));
+    ui->lineEdit_16->setText(loc.toString(s[1],'f',2));
 }
 
 void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
@@ -172,7 +172,11 @@ void MainWindow::readData()
 {
     readLayers();
     readWells();
+
+    QMessageBox::warning(NULL,"XXX",ui->label_10->text());
 }
+
+/* abandoned functions
 
 void MainWindow::on_lineEdit_editingFinished()
 {
@@ -258,6 +262,8 @@ void MainWindow::on_lineEdit_9_editingFinished()
     }
 }
 
+*/
+
 void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 {
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
@@ -326,19 +332,12 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 
     QLocale loc(QLocale::system());
 
-  ui->label_43->setText(loc.toString(s[0]));
-  ui->label_52->setText(loc.toString(s[1]));
+    ui->label_43->setText(loc.toString(s[0],'f',2));
+    ui->label_52->setText(loc.toString(s[0],'f',2));
 
-  ui->pushButton_2->setEnabled(true);
+    ui->pushButton_2->setEnabled(true);
 }
 
-void MainWindow::on_lineEdit_9_cursorPositionChanged(int arg1, int arg2)
-{
-    int k = arg1+arg2; // just to shut up that compile time warning 'bout unused params
-    k++;
-    // what?
-}
-    
 void printout(double x[], int dim) // vypis pole pro manualni debug
 {
     for(int i = 0; i < dim; i++)
@@ -373,6 +372,9 @@ void MainWindow::on_pushButton_5_clicked() // TAB: REZ HYDRAUL. V., export
 void ExportPlot(QwtPlot *arg, const char *filename)
 {
     //QPixmap qPix = QPixmap::grabWidget(arg);
+    if(arg == NULL)
+        return;
+
     QPixmap qPix = arg->grab();
 
     if(qPix.isNull()){
@@ -490,7 +492,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
 
 void MainWindow::on_pushButton_7_clicked() // TAB: MAPA: export
 {
-    ExportPlot(mapa, "mapa.png");
+        ExportPlot(mapa, "mapa.png");
 }
 
 void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
@@ -508,8 +510,8 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 
     QLocale loc(QLocale::system());
 
-  ui->lineEdit_13->setText(loc.toString(s[0]));
-  ui->lineEdit_16->setText(loc.toString(s[1]));
+    ui->lineEdit_13->setText(loc.toString(s[0],'f',2));
+    ui->lineEdit_16->setText(loc.toString(s[1],'f',2));
 
 }
 
@@ -571,7 +573,8 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
             if ((Q[j] > 0) && (Q[1-j] <=0)) { // sbirame casy jen ze zdrojove studny a jen pokud ta druha taky neni zdrojova
                 pocet_proudnic++;
                 if(konec == well) {
-                    casy.push_back(t);
+                    casy.push_back(t/3600/24); //rovnou prevod na dny
+
                     delky.push_back(X.size()*krok);
                     pocet_dorazivsich++;
                 }
@@ -807,6 +810,11 @@ bool MainWindow::readLayers()
     // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
     if(n==-1)
         n = N;
+    if(H < z[0])
+    {
+        QMessageBox::critical(NULL,"Chyba","Zadaná hladina p. v. je pod bází kolektoru!");
+        return false;
+    }
 
     // transmisivita kolektoru
     T = 0;
@@ -853,18 +861,19 @@ bool MainWindow::readWells()
 
     if(ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
     {
-        QMessageBox::warning(NULL,"Varování", "Nebyly zadány oba poloměry dosahu. Lze je spočítat z hodnot vydatností a snížení.");
+        QMessageBox::warning(NULL,"Varování", "Nebyly zadány poloměry dosahu depresních/elevačních kuželů!");
     }
 
     // snizeni
     s[0] = loc.toDouble(ui->lineEdit_13->text());
     s[1] = loc.toDouble(ui->lineEdit_16->text());
 
+    /* tahle cedulka mi dlouho lezla na nervy:
     if(ui->lineEdit_13->text().isEmpty() || ui->lineEdit_16->text().isEmpty())
     {
         QMessageBox::warning(NULL,"Varování", "Nebyly zadána snížení v obou studnách. Lze je spočítat z hodnot vydatností a poloměrů dosahu.");
     }
-
+    */
     return true;
 }
 
@@ -892,7 +901,7 @@ int MainWindow::readN()
 
 
 
-void MainWindow::on_pushButton_11_clicked()
+void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 {
     // aha ...
     // spocitat hodnoty do grafu pro tracer test:
@@ -904,13 +913,12 @@ void MainWindow::on_pushButton_11_clicked()
     }
 
     vector<double> newT;
-    double D = 5e-5 *3600*24; // m^2/d
+    double a = 0.1; // m
 
-    newT.reserve(casy.size()*9 * fabs(z[0] - z[N])*10);
+    newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10); // *9
 
     for(unsigned int i = 0; i < casy.size(); i++)
     {
-        casy[i]/=3600*24; // prevod na dny
 
     // rozpocitat casy podle hodnoty koef. hydrodyn. disperze
 
@@ -922,18 +930,24 @@ void MainWindow::on_pushButton_11_clicked()
     // - 3 castice na 0*sigma, tj. T[i]
     // ... takze v intervalu < -sigma; sigma> je 2+3+2 = 7 bodu z 9 (ma odpovidat 68%)
 
+    //  ( N E ) F U N G U J E
+        //double D = a * delky[i]/casy[i]; // m^2/d
+        //double sigma = sqrt(4*D*casy[i]); // v metrech
+        double sigma = sqrt(4 * a * delky[i]);
+        cout << i << "\t" << casy[i] << "\t" << delky[i] << "\t" << sigma << endl;
 
-        double sigma = sqrt(2*D*casy[i])/delky[i]*casy[i]; // vydeleno stredni obj. hust. toku // d
+        newT.push_back(casy[i] * delky[i] / (delky[i] + 2*sigma));
+        newT.push_back(casy[i] * delky[i] / (delky[i] + sigma));
+        newT.push_back(casy[i] * delky[i] / (delky[i] + sigma));
+        newT.push_back(casy[i]);
 
-        newT.push_back(casy[i] - 2*sigma);
-        newT.push_back(casy[i] - sigma);
-        newT.push_back(casy[i] - sigma);
         newT.push_back(casy[i]);
+
         newT.push_back(casy[i]);
-        newT.push_back(casy[i]);
-        newT.push_back(casy[i] + sigma);
-        newT.push_back(casy[i] + sigma);
-        newT.push_back(casy[i] + 2*sigma);
+        newT.push_back(casy[i] * delky[i] / (delky[i] - sigma));
+        newT.push_back(casy[i] * delky[i] / (delky[i] - sigma));
+        newT.push_back(casy[i] * delky[i] / (delky[i] - 2*sigma));
+
     }
 
     // spocitat casy pro ostatni hloubky (prepocet na jine K)
@@ -947,12 +961,13 @@ void MainWindow::on_pushButton_11_clicked()
     }
 
     // setridit a spocitat histogram:
-
-//    H.push_back(QwtIntervalSample(val, min, max));
     std::sort(newT.begin(),newT.end());
     int pocet_kategorii = 30; // dejme tomu
     int hist[pocet_kategorii] = {0};
     double rozpeti = newT[newT.size()-1] - newT[0];
+    cout << "rozpeti = " << rozpeti << endl;
+    cout << "T[beg] = " << newT[0] << endl;     cout << "HERE!\n";
+    cout << "T[end] = " << newT[newT.size()-1] << endl;    cout << "HERE!\n";
 
     int kategorie = 0;
     for(unsigned int i = 0; i < newT.size(); i++)
@@ -983,12 +998,14 @@ void MainWindow::on_pushButton_11_clicked()
     }
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
     grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
-    grafTracer->setAxisScale(QwtPlot::xBottom, newT[0] , newT[newT.size()-1]);
+    grafTracer->setAxisScale(QwtPlot::xBottom, *newT.begin() , *newT.end());
 
+    /*
     cerr << "newT[0] = " << newT[0] << endl;
     cerr << "newT[newT.size()-1] = " << newT[newT.size()-1] << endl << endl;
     cerr << "casy[0] = " << casy[0] << endl;
     cerr << "casy[casy.size()-1] = " << casy[casy.size()-1] << endl;
+    */
     // sem prijde kod pro vyneseni histogramu
     QwtPlotHistogram *Histo = new QwtPlotHistogram;
     Histo->setSamples(H);
@@ -1011,6 +1028,7 @@ void write(QLineEdit *w, double val)
   w->setText(loc.toString(val));
 }
 
+/* postarsi funkce - a Bany si s tim dal tolik prace :(
 
 void MainWindow::on_lineEdit_textChanged(const QString &arg1)
 {
@@ -1083,3 +1101,4 @@ void MainWindow::on_lineEdit_8_textChanged(const QString &arg1)
         ui->lineEdit_10->setEnabled(true);
     }
 }
+*/
