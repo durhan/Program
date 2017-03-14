@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_16->setValidator(new QDoubleValidator(this));
     ui->lineEdit_17->setValidator(new QDoubleValidator(this));
     ui->lineEdit_18->setValidator(new QDoubleValidator(this));
-    //ui->lineEdit_19->setValidator(new QDoubleValidator(this));
+    ui->lineEdit_19->setValidator(new QIntValidator(1,99999,this));
     ui->lineEdit_20->setValidator(new QDoubleValidator(this));
     ui->lineEdit_21->setValidator(new QDoubleValidator(this));
     ui->pushButton_9->setVisible(false);
@@ -517,13 +517,16 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 
 void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 {
+    ui->startProudnice->setText("Čekejte...");
+    this->repaint();
+
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
 
     casy.clear();
     delky.clear();
 
-    double krok = .03;
+    double krok = .01 * ui->lineEdit_19->text().toInt();
 
     // zaznamenavam cele proudnice plus casy
     vector<double> X,Y;
@@ -615,6 +618,8 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     grafProudnice->show();                                            
 
     outfile.close();
+
+    ui->startProudnice->setText("Zobrazit proudnice");
 }
 
 //-------------------------------------------------------------------
@@ -908,13 +913,13 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     if(casy.size() == 0)
     {
-        // chyba
+        // zadne proudnice nemame
         return;
     }
 
     vector<double> newT;
-    double a = 0.1; // m
-
+    double a = 0.1; // hodnota podelne disperzivity [m] ... asi bych ji mel skalovat podle L, nebo jeste lip delky te ktere proudnice
+    cout << "RESERVAR: " << casy.size() * 9 * fabs(z[0] - z[N])*10 << endl;
     newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10); // *9
 
     for(unsigned int i = 0; i < casy.size(); i++)
@@ -954,16 +959,20 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     // opakovane projizdime puvodne spocitane casy (pro z = 0)
     int pocet_casu = newT.size();
     for(double z = 0.1; z < H; z+=.1) // protoze pro z=0 uz to mame v T
-    {
+    { // spis nez do H by bylo lepsi do max(h)
         double k = getK(z);
         for(unsigned int i = 0; i < pocet_casu; i++)
             newT.push_back(newT[i]*K[0]/k);
     }
 
-    // setridit a spocitat histogram:
+    // setridit a prevest na dny:
     std::sort(newT.begin(),newT.end());
-    int pocet_kategorii = 30; // dejme tomu
-    int hist[pocet_kategorii] = {0};
+    for(int i = 0; i < newT.size(); i++)
+        newT[i]/= 24 * 3600;
+
+    // spocitat histogram:
+    int pocet_kategorii = 600; // dejme tomu
+    int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
     double rozpeti = newT[newT.size()-1] - newT[0];
     cout << "rozpeti = " << rozpeti << endl;
     cout << "T[beg] = " << newT[0] << endl;     cout << "HERE!\n";
@@ -984,7 +993,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         double min = rozpeti / pocet_kategorii * kategorie;
         double max = rozpeti / pocet_kategorii * (kategorie+1);
         double val = 100.0 * hist[kategorie]/newT.size();
-        //cerr << kategorie << ". ----- " << val << endl;
+        cout << kategorie << ". : (" << min << "; " << max << "> ----- " << val << endl;
         H.push_back(QwtIntervalSample(val, min, max));
     }
 
@@ -998,7 +1007,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     }
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
     grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
-    grafTracer->setAxisScale(QwtPlot::xBottom, *newT.begin() , *newT.end());
+    grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
 
     /*
     cerr << "newT[0] = " << newT[0] << endl;

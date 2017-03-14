@@ -403,7 +403,7 @@
           <item>
            <widget class="QLineEdit" name="lineEdit_11">
             <property name="text">
-             <string>0.9</string>
+             <string>-0.9</string>
             </property>
            </widget>
           </item>
@@ -976,8 +976,8 @@
      <widget class="QWidget" name="widgetProudnice" native="true">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>60</y>
+        <x>10</x>
+        <y>100</y>
         <width>591</width>
         <height>401</height>
        </rect>
@@ -987,7 +987,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>50</y>
         <width>171</width>
         <height>31</height>
        </rect>
@@ -1000,7 +1000,7 @@
       <property name="geometry">
        <rect>
         <x>190</x>
-        <y>10</y>
+        <y>50</y>
         <width>171</width>
         <height>31</height>
        </rect>
@@ -1049,7 +1049,7 @@
       <property name="geometry">
        <rect>
         <x>50</x>
-        <y>500</y>
+        <y>560</y>
         <width>121</width>
         <height>16</height>
        </rect>
@@ -1058,6 +1058,58 @@
        <string>Návratnost stopovače:</string>
       </property>
      </widget>
+     <widget class="QLineEdit" name="lineEdit_19">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>10</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_55">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>141</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Krok pro trasování oroudnic:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_56">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>10</y>
+        <width>21</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>cm</string>
+      </property>
+     </widget>
+     <zorder>widgetProudnice</zorder>
+     <zorder>proudExport</zorder>
+     <zorder>widgetTracer</zorder>
+     <zorder>pushButton_11</zorder>
+     <zorder>pushButton_12</zorder>
+     <zorder>label_40</zorder>
+     <zorder>lineEdit_19</zorder>
+     <zorder>label_55</zorder>
+     <zorder>label_56</zorder>
+     <zorder>startProudnice</zorder>
     </widget>
    </widget>
   </widget>

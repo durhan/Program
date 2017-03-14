@@ -203,14 +203,17 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 		return;
 	}
 	
+    double vx, vy, vel, dt, dx, dy;
+    bool podm_studna, podm_dosah;
+
 	do {
 		X->push_back(x);
 		Y->push_back(y);
 		
-		double vx, vy;
+
 		v(x, y, K, &vx, &vy); // slozky obj. hustoty toku
-		double vel = sqrt(vx*vx+vy*vy);
-        if(vel < fabs(krok)/(3600*24*365.25)) // kdyz krok urazi za rok...
+        vel = sqrt(vx*vx+vy*vy);
+        /*if(vel < fabs(krok)/(3600*24*365.25)) // kdyz krok urazi za rok...
         {
             logfile << "track_point: trajectory terminated: negligible flow" << endl;
             logfile << "x = " << x << endl;
@@ -221,8 +224,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
                 *ep = other;
             return;
         }
-
-		double dt = krok / vel; // skalovat vektor v na delku kroku
+        */
+        dt = krok / vel; // skalovat vektor v na delku kroku
 
         if((X->size() > maxidx) || (X->size() == X->max_size()))
         {
@@ -249,10 +252,10 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             Y->pop_back();
             if(ep != NULL)
                 *ep = watershed;
-            return;
+            continue;
         }}
-		double dx = vx * dt;
-		double dy = vy * dt; // prevedeno na vektor delky "krok"
+        dx = vx * dt;
+        dy = vy * dt; // prevedeno na vektor delky "krok"
 		
 		x+= dx; // popojit o krok
 		y+= dy;
@@ -260,17 +263,21 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 
 		l[0] = sqrt(x*x+y*y); // vzdalenost sledovane castice od prvni/druhe studny
 		l[1] = sqrt((x-L)*(x-L)+y*y);
-	
+
+        podm_studna = (l[0]<r[0]) || (l[0] < fabs(krok)) || (l[1]<r[1]) || (l[0] < fabs(krok));
+        podm_dosah = (l[0] > R[0]*.99) || (l[1] > R[1]*.99) || (l[0] > R[0]-1.5*krok) || (l[1] > R[1]-1.5*krok);
+
         if(ep != NULL) {
 
-            if((l[0] < r[0]) || (l[1] < r[1]))
+            if(podm_studna)
                 *ep = well;
 
-            if((l[0] > R[0]*.99) || (l[1] > R[1]*.99))
+            if(podm_dosah)
                 *ep = range;
         }
 
-    } while ( !( (l[0]<r[0]) || (l[1]<r[1]) || ( (l[0]>R[0]*.99) && (l[1]>R[1]*.99) )   ));
+
+    } while ( !(podm_studna || podm_dosah) );
 
 }
 
