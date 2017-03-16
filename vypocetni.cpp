@@ -279,6 +279,13 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 
     } while ( !(podm_studna || podm_dosah) );
 
+    if(X->size() < 3)
+    {
+        X->clear();
+        Y->clear();
+        *T = 0;
+    }
+
 }
 
 void simple_track_point(double x0, double y0, double krok, vector<double> *X, vector<double> *Y) // trajektorie konci, jakmile se dostaneme do vrtu

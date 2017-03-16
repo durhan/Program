@@ -619,6 +619,13 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
     outfile.close();
 
+    if((sgn(Q[0]) != sgn(Q[1])) && (sgn(Q[0]) != 0) && (sgn(Q[1]) != 0))
+        ui->label_navratnost->setText(QString::number(100.0*pocet_dorazivsich/pocet_proudnic,'f',1)+" %");
+        //ui->label_navratnost->setText(QString::number(pocet_dorazivsich)+"/"+QString::number(pocet_proudnic));
+    else
+        ui->label_navratnost->setText("%");
+
+
     ui->startProudnice->setText("Zobrazit proudnice");
 }
 
@@ -919,7 +926,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     vector<double> newT;
     double a = 0.1; // hodnota podelne disperzivity [m] ... asi bych ji mel skalovat podle L, nebo jeste lip delky te ktere proudnice
-    cout << "RESERVAR: " << casy.size() * 9 * fabs(z[0] - z[N])*10 << endl;
+    cout << "casy.size() == " << casy.size() << endl << "RESERVAR: " << casy.size() * 9 * fabs(z[0] - z[N])*10 << endl;
     newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10); // *9
 
     for(unsigned int i = 0; i < casy.size(); i++)
@@ -957,7 +964,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     // spocitat casy pro ostatni hloubky (prepocet na jine K)
     // opakovane projizdime puvodne spocitane casy (pro z = 0)
-    int pocet_casu = newT.size();
+    unsigned int pocet_casu = newT.size();
     for(double z = 0.1; z < H; z+=.1) // protoze pro z=0 uz to mame v T
     { // spis nez do H by bylo lepsi do max(h)
         double k = getK(z);
@@ -965,13 +972,16 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
             newT.push_back(newT[i]*K[0]/k);
     }
 
-    // setridit a prevest na dny:
+    // setridit:
     std::sort(newT.begin(),newT.end());
-    for(int i = 0; i < newT.size(); i++)
-        newT[i]/= 24 * 3600;
+
+    // casy[i] uz jsou prevedene na dny... :(
+    //for(unsigned int i = 0; i < newT.size(); i++)
+    //    newT[i]/= 24 * 3600;
 
     // spocitat histogram:
-    int pocet_kategorii = 600; // dejme tomu
+    int pocet_kategorii = 60; // dejme tomu
+    //int pocet_kategorii = int(ceil(newT[newT.size()-1]));
     int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
     double rozpeti = newT[newT.size()-1] - newT[0];
     cout << "rozpeti = " << rozpeti << endl;
@@ -1007,7 +1017,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     }
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
     grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
-    grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
+    //grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
 
     /*
     cerr << "newT[0] = " << newT[0] << endl;
@@ -1023,6 +1033,10 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     grafTracer->resize(grafTracer->parentWidget()->width(), grafTracer->parentWidget()->height());
     grafTracer->replot();
     grafTracer->show();
+
+    for(int i = 0; i < delky.size(); i++)
+        cout << i << ": " << delky[i] << endl;
+
 }
 
 void MainWindow::on_pushButton_12_clicked()
