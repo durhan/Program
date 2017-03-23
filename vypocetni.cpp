@@ -252,7 +252,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             Y->pop_back();
             if(ep != NULL)
                 *ep = watershed;
-            continue;
+            break;
         }}
         dx = vx * dt;
         dy = vy * dt; // prevedeno na vektor delky "krok"
@@ -285,6 +285,10 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
         Y->clear();
         *T = 0;
     }
+
+    double porovitost = .25;
+
+    *T *= porovitost;
 
 }
 

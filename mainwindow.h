@@ -73,6 +73,8 @@ private slots:
 
     void on_lineEdit_8_textChanged(const QString &arg1);
 */
+    void on_pushButton_13_clicked();
+
 private:
     Ui::MainWindow *ui;
     void readData();

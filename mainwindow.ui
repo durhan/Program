@@ -24,11 +24,11 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Hodnoty</string>
+      <string>Vstupní hodnoty</string>
      </attribute>
      <widget class="QGroupBox" name="Vrstvy">
       <property name="geometry">
@@ -87,8 +87,11 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit">
+            <property name="toolTip">
+             <string>Hloubka báze nejsvrchnější vrstvy.</string>
+            </property>
             <property name="text">
-             <string>2</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -108,8 +111,11 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_2">
+            <property name="toolTip">
+             <string/>
+            </property>
             <property name="text">
-             <string>3e-5</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -136,8 +142,11 @@
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="toolTip">
+             <string>Hloubka báze 2. vrstvy.</string>
+            </property>
             <property name="text">
-             <string>5</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -161,7 +170,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>3e-3</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -188,8 +197,11 @@
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="toolTip">
+             <string>Hloubka báze vrstvy.</string>
+            </property>
             <property name="text">
-             <string>8</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -213,7 +225,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>3e-6</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -239,6 +251,9 @@
            <widget class="QLineEdit" name="lineEdit_7">
             <property name="enabled">
              <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Hloubka báze vrstvy.</string>
             </property>
             <property name="text">
              <string/>
@@ -292,6 +307,9 @@
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="toolTip">
+             <string>Hloubka báze vrstvy.</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -338,8 +356,11 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButton">
+          <property name="toolTip">
+           <string/>
+          </property>
           <property name="text">
-           <string>Nakresli schéma</string>
+           <string>Nakreslit schéma vrstev</string>
           </property>
          </widget>
         </item>
@@ -402,8 +423,11 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_11">
+            <property name="toolTip">
+             <string>Záporná hodnota znamená čerpání.</string>
+            </property>
             <property name="text">
-             <string>-0.3</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -427,8 +451,11 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_14">
+            <property name="toolTip">
+             <string>Záporná hodnota znamená čerpání.</string>
+            </property>
             <property name="text">
-             <string>0.5</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -462,6 +489,9 @@
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_17">
+          <property name="toolTip">
+           <string>Vzdálenost hydrogeologických vrtů.</string>
+          </property>
           <property name="text">
            <string>50</string>
           </property>
@@ -495,8 +525,11 @@
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_18">
+          <property name="toolTip">
+           <string>Hloubka hladiny podzemní vody pod terénem.</string>
+          </property>
           <property name="text">
-           <string>3</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -657,6 +690,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_20">
+            <property name="toolTip">
+             <string>Dosah depresního, resp. elevačního kuželu.</string>
+            </property>
             <property name="text">
              <string>200</string>
             </property>
@@ -720,6 +756,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_21">
+            <property name="toolTip">
+             <string>Dosah depresního, resp. elevačního kuželu.</string>
+            </property>
             <property name="text">
              <string>200</string>
             </property>
@@ -854,6 +893,9 @@
         <height>20</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Nová hodnota minima na svislé ose. Prázdné pole znamená bázi souvrství.</string>
+      </property>
      </widget>
      <widget class="QLineEdit" name="hhymax">
       <property name="geometry">
@@ -864,6 +906,9 @@
         <height>20</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Nová hodnota maxima na svislé ose. Prázdné pole znamená strop souvrství.</string>
+      </property>
      </widget>
      <widget class="QPushButton" name="pushButton_4">
       <property name="geometry">
@@ -873,6 +918,9 @@
         <width>75</width>
         <height>23</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Změnit rozsah na svislé ose podle hodnot vlevo.</string>
       </property>
       <property name="text">
        <string>Změnit</string>
@@ -932,6 +980,9 @@
         <height>23</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Zapsat hodnoty snížení do Vstupních hodnot.</string>
+      </property>
       <property name="text">
        <string>Zapsat hodnoty</string>
       </property>
@@ -987,7 +1038,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>50</y>
+        <y>10</y>
         <width>171</width>
         <height>31</height>
        </rect>
@@ -1000,7 +1051,7 @@
       <property name="geometry">
        <rect>
         <x>190</x>
-        <y>50</y>
+        <y>10</y>
         <width>171</width>
         <height>31</height>
        </rect>
@@ -1061,11 +1112,14 @@
      <widget class="QLineEdit" name="lineEdit_19">
       <property name="geometry">
        <rect>
-        <x>170</x>
-        <y>10</y>
+        <x>160</x>
+        <y>50</y>
         <width>51</width>
         <height>21</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
       </property>
       <property name="text">
        <string>3</string>
@@ -1077,8 +1131,8 @@
      <widget class="QLabel" name="label_55">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>10</y>
+        <x>10</x>
+        <y>50</y>
         <width>141</width>
         <height>21</height>
        </rect>
@@ -1090,10 +1144,10 @@
      <widget class="QLabel" name="label_56">
       <property name="geometry">
        <rect>
-        <x>230</x>
-        <y>10</y>
+        <x>220</x>
+        <y>50</y>
         <width>21</width>
-        <height>16</height>
+        <height>21</height>
        </rect>
       </property>
       <property name="text">
@@ -1109,11 +1163,27 @@
         <height>20</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Procento proudnic, které skončí v cílovém vrtu.</string>
+      </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
       </property>
       <property name="text">
        <string>%</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_13">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>10</y>
+        <width>171</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Exportovat časy příchodů</string>
       </property>
      </widget>
      <zorder>widgetProudnice</zorder>
@@ -1127,6 +1197,7 @@
      <zorder>label_56</zorder>
      <zorder>startProudnice</zorder>
      <zorder>label_navratnost</zorder>
+     <zorder>pushButton_13</zorder>
     </widget>
    </widget>
   </widget>

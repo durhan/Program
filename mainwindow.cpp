@@ -25,8 +25,10 @@
 
 QwtPlot *rez=NULL, *mapa=NULL, *grafProudnice=NULL, *grafTracer=NULL, *prurez=NULL;
 vector<double> casy,delky;
+vector<double> newT;
 
 double zet[6], Ha;
+double Z_base;
 
 class SpectrogramData: public QwtRasterData
 {
@@ -103,8 +105,16 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 {
     //testovaci_input();
-    readLayers();
-    readWells();
+    if(!readLayers())
+        return;
+
+    //readWells();
+
+    if(ui->lineEdit_17->text().isEmpty())
+        L = 0;
+
+    if(ui->lineEdit_18->text().isEmpty())
+        H = -1;
 
     //-------udelame to vse jako histogram
 
@@ -389,7 +399,8 @@ void ExportPlot(QwtPlot *arg, const char *filename)
 
 
     //QFileDialog(ui,"Export řezu hydraulické výšky", new QString("C:/"), new QString(".png"));
-    qPix.save(fname,"PNG",85);
+    if(!fname.isEmpty())
+        qPix.save(fname,"PNG",85);
 }
 
 void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
@@ -416,6 +427,9 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     //polointeligentni urceni mezi z:
     double arr[3] = { H, hydraulic_head(r[0],0), hydraulic_head(L+r[1],0) };
 
+    std::sort(arr,&arr[2]);
+
+    /*
     for(int pruchod = 0; pruchod < 3; pruchod++)
         for(int k = 0; k < 2; k++)
             if(arr[k] > arr[k+1])
@@ -424,6 +438,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
                 arr[k] = arr[k+1];
                 arr[k+1] = p;
             }
+    */
 
     double zmin = arr[0];
     double zmax = arr[2];
@@ -549,7 +564,7 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 
     outfile << __DATE__ << " " << __TIME__ << endl;
 
-    double krokfi = 2.0*M_PI/26;
+    double krokfi = 2.0*M_PI/47;
 
     double z0 = 0.0; // pocitam jen pro prvni vrstvu
     double x[2], y[2], t; //startovni body
@@ -576,8 +591,8 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
             if ((Q[j] > 0) && (Q[1-j] <=0)) { // sbirame casy jen ze zdrojove studny a jen pokud ta druha taky neni zdrojova
                 pocet_proudnic++;
                 if(konec == well) {
-                    casy.push_back(t/3600/24); //rovnou prevod na dny
-
+                    //casy.push_back(t/3600/24); //rovnou prevod na dny
+                    casy.push_back(t); // zadny prevod na dny
                     delky.push_back(X.size()*krok);
                     pocet_dorazivsich++;
                 }
@@ -772,10 +787,34 @@ bool MainWindow::readLayers()
         QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst hodnotu L!");
         return false;
     }
+
+    // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
+    H = Ha = loc.toDouble(ui->lineEdit_18->text());
+    if(H < .000001)
+    {
+        QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
+        //return false;
+    }
+
+    H = z[0] - H;
+
+    int n = getLayer(H);
+
+    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
+    if(n==-1)
+        n = N;
+
+    if(H < z[0])
+    {
+        QMessageBox::critical(NULL,"Chyba","Zadaná hladina p. v. je pod bází kolektoru!");
+        return false;
+    }
+
+
     // veci odvozene:
 
     // tenhle kus kodu pripravi z-souradnice vrstevnich rozhrani - obrati osu, polozi z=0 na podlozi
-    double Z_base = z[N];
+    Z_base = z[N];
 
     for(int i = 0; i < N+1; i++)
     {
@@ -800,15 +839,6 @@ bool MainWindow::readLayers()
         K[N-i-1]= pom;
     }
 
-    // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
-    H = Ha = loc.toDouble(ui->lineEdit_18->text());
-    if(H < .000001)
-    {
-        QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
-        //return false;
-    }
-
-    H = Z_base - H;
 
     // mocnosti vrstev
     d[0] = z[1];
@@ -816,17 +846,6 @@ bool MainWindow::readLayers()
     d[2] = z[3] - z[2];
     d[3] = z[4] - z[3];
     d[4] = z[5] - z[4];
-
-    int n = getLayer(H);
-
-    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
-    if(n==-1)
-        n = N;
-    if(H < z[0])
-    {
-        QMessageBox::critical(NULL,"Chyba","Zadaná hladina p. v. je pod bází kolektoru!");
-        return false;
-    }
 
     // transmisivita kolektoru
     T = 0;
@@ -846,6 +865,50 @@ bool MainWindow::readLayers()
 bool MainWindow::readWells()
 {
     QLocale loc(QLocale::system());
+
+    // vzdalenost mezi studnami
+    L = loc.toDouble(ui->lineEdit_17->text());
+
+    if(L < .001)
+    {
+        QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst hodnotu L!");
+        return false;
+    }
+
+    // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
+    H = Ha = loc.toDouble(ui->lineEdit_18->text());
+    if(H < .000001)
+    {
+        QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
+        //return false;
+    }
+
+    H = z[0] - H;
+
+    int n = getLayer(H);
+
+    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
+    if(n==-1)
+        n = N;
+
+    if(H < z[0])
+    {
+        QMessageBox::critical(NULL,"Chyba","Zadaná hladina p. v. je pod bází kolektoru!");
+        return false;
+    }
+
+    // transmisivita kolektoru
+    T = 0;
+    for(int i=0; i < n; i++)
+        T+= K[i]*d[i];
+
+    double dT = K[n]*(H - z[n]);
+    if(dT < 0)
+    {
+        logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
+    }
+    T+=dT;
+
 
     // vydatnosti - do form se zadavaji l/s
     Q[0] = loc.toDouble(ui->lineEdit_11->text())/1000; // s prevodem na m3/s
@@ -924,9 +987,12 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         return;
     }
 
-    vector<double> newT;
+    //vector<double> newT;
+
     double a = 0.1; // hodnota podelne disperzivity [m] ... asi bych ji mel skalovat podle L, nebo jeste lip delky te ktere proudnice
-    cout << "casy.size() == " << casy.size() << endl << "RESERVAR: " << casy.size() * 9 * fabs(z[0] - z[N])*10 << endl;
+    //cout << "casy.size() == " << casy.size() << endl << "RESERVAR: " << casy.size() * 9 * fabs(z[0] - z[N])*10 << endl;
+
+    newT.clear();
     newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10); // *9
 
     for(unsigned int i = 0; i < casy.size(); i++)
@@ -946,7 +1012,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         //double D = a * delky[i]/casy[i]; // m^2/d
         //double sigma = sqrt(4*D*casy[i]); // v metrech
         double sigma = sqrt(4 * a * delky[i]);
-        cout << i << "\t" << casy[i] << "\t" << delky[i] << "\t" << sigma << endl;
+        //cout << i << "\t" << casy[i] << "\t" << delky[i] << "\t" << sigma << endl;
 
         newT.push_back(casy[i] * delky[i] / (delky[i] + 2*sigma));
         newT.push_back(casy[i] * delky[i] / (delky[i] + sigma));
@@ -980,13 +1046,14 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     //    newT[i]/= 24 * 3600;
 
     // spocitat histogram:
+    // policko na to
     int pocet_kategorii = 60; // dejme tomu
     //int pocet_kategorii = int(ceil(newT[newT.size()-1]));
     int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
     double rozpeti = newT[newT.size()-1] - newT[0];
-    cout << "rozpeti = " << rozpeti << endl;
-    cout << "T[beg] = " << newT[0] << endl;     cout << "HERE!\n";
-    cout << "T[end] = " << newT[newT.size()-1] << endl;    cout << "HERE!\n";
+    //cout << "rozpeti = " << rozpeti << endl;
+    //cout << "T[beg] = " << newT[0] << endl;     cout << "HERE!\n";
+    //cout << "T[end] = " << newT[newT.size()-1] << endl;    cout << "HERE!\n";
 
     int kategorie = 0;
     for(unsigned int i = 0; i < newT.size(); i++)
@@ -1003,7 +1070,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         double min = rozpeti / pocet_kategorii * kategorie;
         double max = rozpeti / pocet_kategorii * (kategorie+1);
         double val = 100.0 * hist[kategorie]/newT.size();
-        cout << kategorie << ". : (" << min << "; " << max << "> ----- " << val << endl;
+        //cout << kategorie << ". : (" << min << "; " << max << "> ----- " << val << endl;
         H.push_back(QwtIntervalSample(val, min, max));
     }
 
@@ -1012,11 +1079,11 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         grafTracer = new QwtPlot(ui->widgetTracer);
         grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
         grafTracer->setCanvasBackground(Qt::white);
-        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
+        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [s]");
         grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
     }
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
-    grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
+    //grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
     //grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
 
     /*
@@ -1034,14 +1101,30 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     grafTracer->replot();
     grafTracer->show();
 
-    for(int i = 0; i < delky.size(); i++)
-        cout << i << ": " << delky[i] << endl;
 
 }
 
 void MainWindow::on_pushButton_12_clicked()
 {
     ExportPlot(grafTracer, "tracertest.png");
+}
+
+void MainWindow::on_pushButton_13_clicked()
+{
+    vector<double> *ptr = &newT;
+
+    if(newT.size() < 3) // kdyz nejsou spocitane zadne lepsi casy, ulozime aspon zaklad - stredni casy na proudnicich
+        ptr = &casy;
+
+    QString fname = QFileDialog::getSaveFileName(this,"Uložit jako",".","*.txt");
+
+    ofstream komplet;
+    komplet.open(fname.toStdString().data(), ios_base::out);
+
+    for(unsigned int i = 0; i < ptr->size(); i++)
+        komplet << (*ptr)[i] << endl;
+
+    komplet.close();
 }
 
 void write(QLineEdit *w, double val)
@@ -1125,3 +1208,5 @@ void MainWindow::on_lineEdit_8_textChanged(const QString &arg1)
     }
 }
 */
+
+
