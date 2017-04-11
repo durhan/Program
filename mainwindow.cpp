@@ -106,15 +106,37 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 {
     //testovaci_input();
     if(!readLayers())
+    {
+        cerr << "HG schema: !readLayers() == true" << endl;
         return;
+    }
+
+    // musime si sami nacist polomery, jinak vazne neni co vynaset:
+    // lineedit 12 a 15
+
+    if(ui->lineEdit_12->text().isEmpty())
+        r[0] = .1;
+    else
+        r[0] = ui->lineEdit_12->text().toDouble()/1000/2;
+
+    if(ui->lineEdit_15->text().isEmpty())
+        r[1] = .1;
+    else
+        r[1] = ui->lineEdit_15->text().toDouble()/1000/2;
 
     //readWells();
 
     if(ui->lineEdit_17->text().isEmpty())
+    {
+        cout << "L = 0" << endl;
         L = 0;
+    }
 
     if(ui->lineEdit_18->text().isEmpty())
-        H = -1;
+    {
+        cout << "H = 0" << endl;
+        H = 0;
+    }
 
     //-------udelame to vse jako histogram
 
@@ -126,7 +148,12 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 
         rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
         //rez->insertLegend(new QwtLegend);
+
+        QwtPlotGrid *mrizka = new QwtPlotGrid();
+        mrizka->setPen(Qt::gray,1.0,Qt::DotLine);
+        mrizka->attach(rez);
     }
+
     rez->detachItems(QwtPlotItem::Rtti_PlotHistogram); // zbavi graf vsech...
     rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
     rez->setAxisScale(QwtPlot::yLeft, zet[N], zet[0]);
@@ -156,8 +183,10 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
    }
 
 //-----pridam studny
-   S1.push_back(QwtIntervalSample(zet[N],0-r[0],0+r[0]));
-   S2.push_back(QwtIntervalSample(zet[N],L-r[1],L+r[1]));
+   //cerr << "zet[N] = " << zet[N] << endl;
+
+   S1.push_back(QwtIntervalSample(zet[0],0-r[0],0+r[0]));
+   S2.push_back(QwtIntervalSample(zet[0],L-r[1],L+r[1]));
 
    QwtPlotHistogram *studna1 = new QwtPlotHistogram ("studna 1.");
    QwtPlotHistogram *studna2 = new QwtPlotHistogram ("studna 2.");
@@ -165,7 +194,9 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
    studna2->setSamples(S2);
    studna1->attach(rez);
    studna2->attach(rez);
+/*
 
+*/
    rez->resize(ui->FrameHH->width(),ui->FrameHH->height());
    rez->replot();
    rez->show();
@@ -314,6 +345,10 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
         rez->setAxisTitle(QwtPlot::xBottom,"x[m]");
         rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
         rez->insertLegend(new QwtLegend);
+
+        QwtPlotGrid *mrizka = new QwtPlotGrid();
+        mrizka->setPen(Qt::gray,1.0,Qt::DotLine);
+        mrizka->attach(rez);
     }
     rez->detachItems(QwtPlotItem::Rtti_PlotCurve); // zbavi graf vsech...
     rez->setAxisScale(QwtPlot::xBottom, -L/2 , 1.5*L);
@@ -323,10 +358,6 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     krivka->setSamples( x, rezh, xDim);
     krivka->setPen( Qt::blue, 1 );
     krivka->attach(rez);
-
-    QwtPlotGrid *mrizka = new QwtPlotGrid();
-    mrizka->setPen(Qt::gray,1.0,Qt::DotLine);
-    mrizka->attach(rez);
 
     rez->resize(ui->FrameHH->width(), ui->FrameHH->height());
     rez->replot();
@@ -795,8 +826,9 @@ bool MainWindow::readLayers()
         QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
         //return false;
     }
+    //cerr << H << endl << z[0] << endl << z[N] << endl;
 
-    H = z[0] - H;
+    H = z[N] - H;
 
     int n = getLayer(H);
 
@@ -866,50 +898,6 @@ bool MainWindow::readWells()
 {
     QLocale loc(QLocale::system());
 
-    // vzdalenost mezi studnami
-    L = loc.toDouble(ui->lineEdit_17->text());
-
-    if(L < .001)
-    {
-        QMessageBox::critical(NULL,"Chyba!","Nepodařilo se načíst hodnotu L!");
-        return false;
-    }
-
-    // puvodni hydraulicka vyska (pred cerpanim - nebo hloubka hladiny podzemni vody? bylo by praktictejsi
-    H = Ha = loc.toDouble(ui->lineEdit_18->text());
-    if(H < .000001)
-    {
-        QMessageBox::warning(NULL,"Varování!","Hodnota hladiny před čerpáním nebyla zadána, nebo je záporná.");
-        //return false;
-    }
-
-    H = z[0] - H;
-
-    int n = getLayer(H);
-
-    // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
-    if(n==-1)
-        n = N;
-
-    if(H < z[0])
-    {
-        QMessageBox::critical(NULL,"Chyba","Zadaná hladina p. v. je pod bází kolektoru!");
-        return false;
-    }
-
-    // transmisivita kolektoru
-    T = 0;
-    for(int i=0; i < n; i++)
-        T+= K[i]*d[i];
-
-    double dT = K[n]*(H - z[n]);
-    if(dT < 0)
-    {
-        logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
-    }
-    T+=dT;
-
-
     // vydatnosti - do form se zadavaji l/s
     Q[0] = loc.toDouble(ui->lineEdit_11->text())/1000; // s prevodem na m3/s
     Q[1] = loc.toDouble(ui->lineEdit_14->text())/1000;
@@ -936,19 +924,14 @@ bool MainWindow::readWells()
 
     if(ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
     {
-        QMessageBox::warning(NULL,"Varování", "Nebyly zadány poloměry dosahu depresních/elevačních kuželů!");
+        QMessageBox::critical(NULL,"Varování", "Nebyly zadány poloměry dosahu depresních/elevačních kuželů!");
+        return false;
     }
 
     // snizeni
     s[0] = loc.toDouble(ui->lineEdit_13->text());
     s[1] = loc.toDouble(ui->lineEdit_16->text());
 
-    /* tahle cedulka mi dlouho lezla na nervy:
-    if(ui->lineEdit_13->text().isEmpty() || ui->lineEdit_16->text().isEmpty())
-    {
-        QMessageBox::warning(NULL,"Varování", "Nebyly zadána snížení v obou studnách. Lze je spočítat z hodnot vydatností a poloměrů dosahu.");
-    }
-    */
     return true;
 }
 
@@ -1025,8 +1008,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         newT.push_back(casy[i] * delky[i] / (delky[i] - sigma));
         newT.push_back(casy[i] * delky[i] / (delky[i] - sigma));
         newT.push_back(casy[i] * delky[i] / (delky[i] - 2*sigma));
-
-    }
+    } // for casy[i]
 
     // spocitat casy pro ostatni hloubky (prepocet na jine K)
     // opakovane projizdime puvodne spocitane casy (pro z = 0)
@@ -1038,8 +1020,27 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
             newT.push_back(newT[i]*K[0]/k);
     }
 
+
     // setridit:
     std::sort(newT.begin(),newT.end());
+
+    while(newT[newT.size()-1] > 9.99e8)
+        newT.pop_back();
+
+    // trafo
+    for(unsigned int i = 0; i < newT.size(); i++)
+    {
+        /* logaritmicka skala
+        if(newT[i] > 0)
+            newT[i] = log10(newT[i]);
+        else
+            cerr << "newT[" << i << "] <= 0" << endl;
+        */
+    }
+
+    cout << newT[0] << endl << newT[newT.size()-1] << endl;
+    if(newT[newT.size()-1] > 9.99e9)
+        cout << "KURVA! " << newT.size() << endl;
 
     // casy[i] uz jsou prevedene na dny... :(
     //for(unsigned int i = 0; i < newT.size(); i++)
