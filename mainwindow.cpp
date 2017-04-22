@@ -76,6 +76,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_19->setValidator(new QIntValidator(1,99999,this));
     ui->lineEdit_20->setValidator(new QDoubleValidator(this));
     ui->lineEdit_21->setValidator(new QDoubleValidator(this));
+    ui->lineEdit_a->setValidator(new QDoubleValidator(0,10,1000,this));
+    ui->lineEdit_maxt->setValidator(new QDoubleValidator(1e-6,1e40,1000,this));
+    ui->lineEdit_pkat->setValidator(new QIntValidator(2,99999,this));
+    ui->lineEdit_starty->setValidator(new QIntValidator(1,1000,this));
+    ui->lineEdit_n->setValidator(new QDoubleValidator(0,1,2,this));
     ui->pushButton_9->setVisible(false);
     ui->pushButton_10->setVisible(false);
     ui->pushButton_9->setEnabled(false);
@@ -114,17 +119,21 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
     // musime si sami nacist polomery, jinak vazne neni co vynaset:
     // lineedit 12 a 15
 
-    if(ui->lineEdit_12->text().isEmpty())
+    QLocale loc(QLocale::system());
+
+    bool ok = true;
+
+    r[0] = loc.toDouble(ui->lineEdit_12->text(), &ok)/1000/2;
+
+    if(!ok)
         r[0] = .1;
-    else
-        r[0] = ui->lineEdit_12->text().toDouble()/1000/2;
 
-    if(ui->lineEdit_15->text().isEmpty())
+    r[1] = loc.toDouble(ui->lineEdit_15->text(), &ok)/1000/2;
+
+    if(!ok)
         r[1] = .1;
-    else
-        r[1] = ui->lineEdit_15->text().toDouble()/1000/2;
 
-    //readWells();
+    readWells();
 
     if(ui->lineEdit_17->text().isEmpty())
     {
@@ -138,6 +147,7 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
         H = 0;
     }
 
+    //cout << "L = " << L << " m" << endl << "H = " << H << " m" << endl;
     //-------udelame to vse jako histogram
 
     if(rez == NULL) {
@@ -185,8 +195,8 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 //-----pridam studny
    //cerr << "zet[N] = " << zet[N] << endl;
 
-   S1.push_back(QwtIntervalSample(zet[0],0-r[0],0+r[0]));
-   S2.push_back(QwtIntervalSample(zet[0],L-r[1],L+r[1]));
+   S1.push_back(QwtIntervalSample(zet[N],0-r[0],0+r[0]));
+   S2.push_back(QwtIntervalSample(zet[N],L-r[1],L+r[1]));
 
    QwtPlotHistogram *studna1 = new QwtPlotHistogram ("studna 1.");
    QwtPlotHistogram *studna2 = new QwtPlotHistogram ("studna 2.");
@@ -452,28 +462,16 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     double ymin =-1.0*ui->widgetMapa->height()/ui->widgetMapa->width() * L;
     double ymax = 1.0*ui->widgetMapa->height()/ui->widgetMapa->width() * L;
 
-    //cerr << ymin << endl;
-    //cerr << ymax << endl;
-
     //polointeligentni urceni mezi z:
     double arr[3] = { H, hydraulic_head(r[0],0), hydraulic_head(L+r[1],0) };
 
-    std::sort(arr,&arr[2]);
-
-    /*
-    for(int pruchod = 0; pruchod < 3; pruchod++)
-        for(int k = 0; k < 2; k++)
-            if(arr[k] > arr[k+1])
-            {
-                double p = arr[k];
-                arr[k] = arr[k+1];
-                arr[k+1] = p;
-            }
-    */
+    cout << "H = " << arr[0] << "\t" << "h[0] = " << arr[1] << "\t" << "h[1] = " << arr[2] << endl;
+    std::sort(arr,arr+3);
 
     double zmin = arr[0];
     double zmax = arr[2];
 
+    cout << "zmin = " << zmin << endl << "zmax = " << zmax << endl;
     SpectrogramData *obsah = new SpectrogramData();
     obsah->setInterval( Qt::XAxis, QwtInterval( xmin, xmax ) );
     obsah->setInterval( Qt::YAxis, QwtInterval( ymin, ymax ) );
@@ -507,7 +505,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     kontury->setDisplayMode(QwtPlotSpectrogram::ImageMode, false);
 
     QList<double> contourLevels;
-    for ( double level = ceil(10*zmin)/10; level < zmax + .05; level += .1 ) // puvodni kousek, kdyby se zas hodil: (zmax-zmin)/10
+    for ( double level = ceil(10*zmin)/10; level < zmax + .05; level += .05 ) // puvodni kousek, kdyby se zas hodil: (zmax-zmin)/10
         contourLevels += level;
     kontury->setContourLevels( contourLevels );
     kontury->setDefaultContourPen(QPen(Qt::NoPen)); //Qt::NoPen
@@ -533,6 +531,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     mapa->setAxisTitle(QwtPlot::yLeft, "y [m]");
 
     mapa->resize(ui->widgetMapa->width(), ui->widgetMapa->height());
+    mapa->repaint();
     mapa->show();
 }
 
@@ -594,8 +593,15 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     int cislo_proudnice = 0;
 
     outfile << __DATE__ << " " << __TIME__ << endl;
+    QLocale loc(QLocale::system());
 
-    double krokfi = 2.0*M_PI/47;
+    bool ok = false;
+    int pocet_startovnich_bodu = loc.toInt(ui->lineEdit_starty->text(), &ok);
+
+    if(ui->lineEdit_starty->text().isEmpty() || !ok)
+        pocet_startovnich_bodu = 47;
+
+    double krokfi = 2.0*M_PI/pocet_startovnich_bodu;
 
     double z0 = 0.0; // pocitam jen pro prvni vrstvu
     double x[2], y[2], t; //startovni body
@@ -660,7 +666,9 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     grafProudnice->setAxisScale(QwtPlot::yLeft, -L*1.5*pom, L*1.5*pom);
     grafProudnice->setAxisTitle(QwtPlot::yLeft,"y [m]");
     grafProudnice->resize(grafProudnice->parentWidget()->width(),grafProudnice->parentWidget()->height());
-
+    QwtPlotGrid *mrizka = new QwtPlotGrid;
+    mrizka->setPen(Qt::gray,1.0,Qt::DotLine);
+    mrizka->attach(grafProudnice);
     grafProudnice->show();                                            
 
     outfile.close();
@@ -905,7 +913,7 @@ bool MainWindow::readWells()
     if(ui->lineEdit_11->text().isEmpty() && ui->lineEdit_14->text().isEmpty())
     {
         QMessageBox::critical(NULL,"Chyba!","Musí být zadaná alespoň jedna vydatnost (druhá se dá spočítat, pokud pro ni zadáte snížení).");
-        return false;
+        //return false;
     }
 
     // polomery studni - do form se zadavaji PRUMERY V mm
@@ -914,8 +922,11 @@ bool MainWindow::readWells()
 
     if((r[0] < .001) || (r[1] < .001))
     {
-        QMessageBox::critical(NULL,"Chyba!","Musejí být zadané průměry obou studní.");
-        return false;
+        QMessageBox::warning(NULL,"Chyba!","Musejí být zadané průměry obou studní. Dosazuji výchozí hodnotu 200 mm.");
+        //return false;
+        r[0] = r[1] = .1; //m
+        ui->lineEdit_12->setText("200");
+        ui->lineEdit_15->setText("200");
     }
 
     // polomery dosahu (odhad, nebo vnucena hodnota]
@@ -924,8 +935,11 @@ bool MainWindow::readWells()
 
     if(ui->lineEdit_20->text().isEmpty() || ui->lineEdit_21->text().isEmpty())
     {
-        QMessageBox::critical(NULL,"Varování", "Nebyly zadány poloměry dosahu depresních/elevačních kuželů!");
-        return false;
+        QMessageBox::warning(NULL,"Varování", "Nebyly zadány poloměry dosahu depresních/elevačních kuželů! Dosazuji výchozí hodnotu 200 m.");
+        //return false;
+        R[0] = R[1] = 200; //m
+        ui->lineEdit_20->setText("200");
+        ui->lineEdit_21->setText("200");
     }
 
     // snizeni
@@ -961,22 +975,30 @@ int MainWindow::readN()
 
 void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 {
-    // aha ...
     // spocitat hodnoty do grafu pro tracer test:
 
     if(casy.size() == 0)
     {
         // zadne proudnice nemame
+        QMessageBox::critical(NULL,"Chyba","Nejsou spočítané žádné proudnice. Klikněte na tlačítko \"Zobrazit proudnice\".");
         return;
     }
 
-    //vector<double> newT;
+    bool ok = false;
 
-    double a = 0.1; // hodnota podelne disperzivity [m] ... asi bych ji mel skalovat podle L, nebo jeste lip delky te ktere proudnice
-    //cout << "casy.size() == " << casy.size() << endl << "RESERVAR: " << casy.size() * 9 * fabs(z[0] - z[N])*10 << endl;
+    QLocale loc(QLocale::system());
+    double a = loc.toDouble(ui->lineEdit_a->text(), &ok); // hodnota podelne disperzivity [m] ... asi bych ji mel skalovat podle L, nebo jeste lip delky te ktere proudnice
+
+    if(ui->lineEdit_a->text().isEmpty() || !ok)
+        a = .1;
+
+    double porovitost = loc.toDouble(ui->lineEdit_n->text(), &ok);
+
+    if(ui->lineEdit_n->text().isEmpty() || !ok)
+        porovitost = .2;
 
     newT.clear();
-    newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10); // *9
+    newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10 + 1); // *9; +1 kvuli std::sort
 
     for(unsigned int i = 0; i < casy.size(); i++)
     {
@@ -997,19 +1019,20 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         double sigma = sqrt(4 * a * delky[i]);
         //cout << i << "\t" << casy[i] << "\t" << delky[i] << "\t" << sigma << endl;
 
-        newT.push_back(casy[i] * delky[i] / (delky[i] + 2*sigma));
-        newT.push_back(casy[i] * delky[i] / (delky[i] + sigma));
-        newT.push_back(casy[i] * delky[i] / (delky[i] + sigma));
-        newT.push_back(casy[i]);
+        newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] + 2*sigma));
+        newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] + sigma));
+        newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] + sigma));
+        newT.push_back(casy[i] * porovitost);
 
-        newT.push_back(casy[i]);
+        newT.push_back(casy[i] * porovitost);
 
-        newT.push_back(casy[i]);
-        newT.push_back(casy[i] * delky[i] / (delky[i] - sigma));
-        newT.push_back(casy[i] * delky[i] / (delky[i] - sigma));
-        newT.push_back(casy[i] * delky[i] / (delky[i] - 2*sigma));
+        newT.push_back(casy[i] * porovitost);
+        newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] - sigma));
+        newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] - sigma));
+        newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] - 2*sigma));
     } // for casy[i]
 
+//*
     // spocitat casy pro ostatni hloubky (prepocet na jine K)
     // opakovane projizdime puvodne spocitane casy (pro z = 0)
     unsigned int pocet_casu = newT.size();
@@ -1020,41 +1043,44 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
             newT.push_back(newT[i]*K[0]/k);
     }
 
-
-    // setridit:
+    // setridit
     std::sort(newT.begin(),newT.end());
 
-    while(newT[newT.size()-1] > 9.99e8)
+    // prevod na dny
+    for(unsigned int i = 0; i < newT.size(); i++)
+        newT[i]/= 24 * 3600;
+
+    // trim:
+    double max_T = loc.toDouble(ui->lineEdit_maxt->text(), &ok);// * 24 * 3600;
+
+    if(ui->lineEdit_maxt->text().isEmpty() || !ok)
+        max_T = newT[newT.size()-1]; // nic neuseknem
+
+    unsigned int old_size = newT.size();
+
+    while(newT[newT.size()-1] > max_T)
         newT.pop_back();
 
-    // trafo
-    for(unsigned int i = 0; i < newT.size(); i++)
+    if(newT.size() == 0)
     {
-        /* logaritmicka skala
-        if(newT[i] > 0)
-            newT[i] = log10(newT[i]);
-        else
-            cerr << "newT[" << i << "] <= 0" << endl;
-        */
+        QMessageBox::critical(NULL, "Chyba","Maximální čas pro graf je příliš malý - zvětšete ho.");
+        return;
     }
 
-    cout << newT[0] << endl << newT[newT.size()-1] << endl;
-    if(newT[newT.size()-1] > 9.99e9)
-        cout << "KURVA! " << newT.size() << endl;
-
-    // casy[i] uz jsou prevedene na dny... :(
-    //for(unsigned int i = 0; i < newT.size(); i++)
-    //    newT[i]/= 24 * 3600;
-
     // spocitat histogram:
-    // policko na to
-    int pocet_kategorii = 60; // dejme tomu
-    //int pocet_kategorii = int(ceil(newT[newT.size()-1]));
+
+    int pocet_kategorii = loc.toInt(ui->lineEdit_pkat->text(), &ok);
+
+    if(ui->lineEdit_pkat->text().isEmpty() || !ok)
+        pocet_kategorii = 60;
+
     int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
     double rozpeti = newT[newT.size()-1] - newT[0];
-    //cout << "rozpeti = " << rozpeti << endl;
-    //cout << "T[beg] = " << newT[0] << endl;     cout << "HERE!\n";
-    //cout << "T[end] = " << newT[newT.size()-1] << endl;    cout << "HERE!\n";
+/*
+    cout << endl << "histogram -------------------" << endl;
+    cout << "rozpeti = " << rozpeti << endl;
+    cout << "pocet_kategorii = " << pocet_kategorii << endl;
+*/
 
     int kategorie = 0;
     for(unsigned int i = 0; i < newT.size(); i++)
@@ -1065,44 +1091,45 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         hist[kategorie]++;
     }
 
+    // prevest na relativni cetnosti:
     QVector <QwtIntervalSample> H;
     for(kategorie = 0; kategorie < pocet_kategorii; kategorie++)
     {
         double min = rozpeti / pocet_kategorii * kategorie;
         double max = rozpeti / pocet_kategorii * (kategorie+1);
-        double val = 100.0 * hist[kategorie]/newT.size();
-        //cout << kategorie << ". : (" << min << "; " << max << "> ----- " << val << endl;
+
+        double val = 100.0 * hist[kategorie]/old_size;
+        //cout << kategorie << ". : (" << min << "; " << max << "> ...... " << val << endl;
         H.push_back(QwtIntervalSample(val, min, max));
     }
 
+//    for(unsigned int i = 0; i < newT.size()-1; i++)
+//        H.push_back(QwtIntervalSample(2,newT[i],newT[i+1]));
+
     // vynest tracer test
+
+
     if(grafTracer == NULL) {
         grafTracer = new QwtPlot(ui->widgetTracer);
         grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
         grafTracer->setCanvasBackground(Qt::white);
-        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [s]");
+        grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
         grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
     }
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
     //grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
     //grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
 
-    /*
-    cerr << "newT[0] = " << newT[0] << endl;
-    cerr << "newT[newT.size()-1] = " << newT[newT.size()-1] << endl << endl;
-    cerr << "casy[0] = " << casy[0] << endl;
-    cerr << "casy[casy.size()-1] = " << casy[casy.size()-1] << endl;
-    */
     // sem prijde kod pro vyneseni histogramu
     QwtPlotHistogram *Histo = new QwtPlotHistogram;
     Histo->setSamples(H);
+    Histo->setPen(Qt::darkBlue,1,Qt::SolidLine);
+    Histo->setBrush(QBrush(Qt::blue, Qt::SolidPattern));
     Histo->attach(grafTracer);
 
     grafTracer->resize(grafTracer->parentWidget()->width(), grafTracer->parentWidget()->height());
     grafTracer->replot();
     grafTracer->show();
-
-
 }
 
 void MainWindow::on_pushButton_12_clicked()

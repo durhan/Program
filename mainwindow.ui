@@ -1028,7 +1028,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>100</y>
+        <y>290</y>
         <width>591</width>
         <height>401</height>
        </rect>
@@ -1099,8 +1099,8 @@
      <widget class="QLabel" name="label_40">
       <property name="geometry">
        <rect>
-        <x>70</x>
-        <y>560</y>
+        <x>635</x>
+        <y>260</y>
         <width>111</width>
         <height>21</height>
        </rect>
@@ -1112,7 +1112,7 @@
      <widget class="QLineEdit" name="lineEdit_19">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>200</x>
         <y>50</y>
         <width>51</width>
         <height>21</height>
@@ -1131,7 +1131,7 @@
      <widget class="QLabel" name="label_55">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>20</x>
         <y>50</y>
         <width>141</width>
         <height>21</height>
@@ -1144,7 +1144,7 @@
      <widget class="QLabel" name="label_56">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>260</x>
         <y>50</y>
         <width>21</width>
         <height>21</height>
@@ -1157,8 +1157,8 @@
      <widget class="QLabel" name="label_navratnost">
       <property name="geometry">
        <rect>
-        <x>185</x>
-        <y>560</y>
+        <x>800</x>
+        <y>260</y>
         <width>81</width>
         <height>20</height>
        </rect>
@@ -1186,6 +1186,192 @@
        <string>Exportovat časy příchodů</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_57">
+      <property name="geometry">
+       <rect>
+        <x>870</x>
+        <y>50</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>m</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_58">
+      <property name="geometry">
+       <rect>
+        <x>630</x>
+        <y>50</y>
+        <width>161</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Koeficient disperzivity:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_a">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>50</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+      </property>
+      <property name="text">
+       <string>0.1</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_59">
+      <property name="geometry">
+       <rect>
+        <x>630</x>
+        <y>110</y>
+        <width>161</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Vynechat časy (trasy) delší než</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_maxt">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>110</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+      </property>
+      <property name="text">
+       <string>100</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_60">
+      <property name="geometry">
+       <rect>
+        <x>870</x>
+        <y>110</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>dní.</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_61">
+      <property name="geometry">
+       <rect>
+        <x>630</x>
+        <y>140</y>
+        <width>161</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Počet kategorií histogramu:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_pkat">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>140</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+      </property>
+      <property name="text">
+       <string>60</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_62">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>80</y>
+        <width>161</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Počet proudnic pro jednu studnu:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_starty">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>80</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+      </property>
+      <property name="text">
+       <string>47</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_63">
+      <property name="geometry">
+       <rect>
+        <x>630</x>
+        <y>80</y>
+        <width>161</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Pórovitost:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_n">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>80</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+      </property>
+      <property name="text">
+       <string>0.2</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
      <zorder>widgetProudnice</zorder>
      <zorder>proudExport</zorder>
      <zorder>widgetTracer</zorder>
@@ -1198,6 +1384,18 @@
      <zorder>startProudnice</zorder>
      <zorder>label_navratnost</zorder>
      <zorder>pushButton_13</zorder>
+     <zorder>label_57</zorder>
+     <zorder>label_58</zorder>
+     <zorder>lineEdit_a</zorder>
+     <zorder>label_59</zorder>
+     <zorder>lineEdit_maxt</zorder>
+     <zorder>label_60</zorder>
+     <zorder>label_61</zorder>
+     <zorder>lineEdit_pkat</zorder>
+     <zorder>label_62</zorder>
+     <zorder>lineEdit_starty</zorder>
+     <zorder>label_63</zorder>
+     <zorder>lineEdit_n</zorder>
     </widget>
    </widget>
   </widget>
