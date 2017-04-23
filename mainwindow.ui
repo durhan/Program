@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -91,7 +91,7 @@
              <string>Hloubka báze nejsvrchnější vrstvy.</string>
             </property>
             <property name="text">
-             <string>4</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -115,7 +115,7 @@
              <string/>
             </property>
             <property name="text">
-             <string>3e-5</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -146,7 +146,7 @@
              <string>Hloubka báze 2. vrstvy.</string>
             </property>
             <property name="text">
-             <string>7</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -170,7 +170,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>5e-4</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -201,7 +201,7 @@
              <string>Hloubka báze vrstvy.</string>
             </property>
             <property name="text">
-             <string>11</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -225,7 +225,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>2e-3</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -256,7 +256,7 @@
              <string>Hloubka báze vrstvy.</string>
             </property>
             <property name="text">
-             <string>16</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -280,7 +280,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>7e-4</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -427,7 +427,7 @@
              <string>Záporná hodnota znamená čerpání.</string>
             </property>
             <property name="text">
-             <string>.9</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -455,7 +455,7 @@
              <string>Záporná hodnota znamená čerpání.</string>
             </property>
             <property name="text">
-             <string>-.9</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -493,7 +493,7 @@
            <string>Vzdálenost hydrogeologických vrtů.</string>
           </property>
           <property name="text">
-           <string>55</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -529,7 +529,7 @@
            <string>Hloubka hladiny podzemní vody pod terénem.</string>
           </property>
           <property name="text">
-           <string>3.3</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -1028,9 +1028,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>290</y>
+        <y>190</y>
         <width>591</width>
-        <height>401</height>
+        <height>501</height>
        </rect>
       </property>
      </widget>
@@ -1064,9 +1064,9 @@
       <property name="geometry">
        <rect>
         <x>610</x>
-        <y>290</y>
+        <y>190</y>
         <width>591</width>
-        <height>401</height>
+        <height>501</height>
        </rect>
       </property>
      </widget>
@@ -1099,14 +1099,14 @@
      <widget class="QLabel" name="label_40">
       <property name="geometry">
        <rect>
-        <x>635</x>
-        <y>260</y>
-        <width>111</width>
+        <x>310</x>
+        <y>50</y>
+        <width>211</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
-       <string>Návratnost stopovače:</string>
+       <string>Podíl nálevu odčerpaného druhou studnou:</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_19">
@@ -1157,8 +1157,8 @@
      <widget class="QLabel" name="label_navratnost">
       <property name="geometry">
        <rect>
-        <x>800</x>
-        <y>260</y>
+        <x>360</x>
+        <y>70</y>
         <width>81</width>
         <height>20</height>
        </rect>
@@ -1331,7 +1331,7 @@
        </rect>
       </property>
       <property name="toolTip">
-       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit zmenšením počtu proudnic.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>47</string>

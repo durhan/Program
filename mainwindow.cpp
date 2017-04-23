@@ -86,6 +86,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_9->setEnabled(false);
     ui->pushButton_10->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
+
+    // vyplnit vychozi hodnoty (jen ty, kt. nejsou celociselne; kvuliva desetinne carce)
+
+    QLocale loc(QLocale::system());
+
+    ui->lineEdit_a->setText(loc.toString(0.1,'g',1));
+    ui->lineEdit_n->setText(loc.toString(0.2,'g',1));
 }
 
 MainWindow::~MainWindow()
