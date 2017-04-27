@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -91,7 +91,7 @@
              <string>Hloubka báze nejsvrchnější vrstvy.</string>
             </property>
             <property name="text">
-             <string/>
+             <string>4</string>
             </property>
            </widget>
           </item>
@@ -115,7 +115,7 @@
              <string/>
             </property>
             <property name="text">
-             <string/>
+             <string>4e-4</string>
             </property>
            </widget>
           </item>
@@ -146,7 +146,7 @@
              <string>Hloubka báze 2. vrstvy.</string>
             </property>
             <property name="text">
-             <string/>
+             <string>10</string>
             </property>
            </widget>
           </item>
@@ -170,7 +170,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string/>
+             <string>10e-6</string>
             </property>
            </widget>
           </item>
@@ -201,7 +201,7 @@
              <string>Hloubka báze vrstvy.</string>
             </property>
             <property name="text">
-             <string/>
+             <string>20</string>
             </property>
            </widget>
           </item>
@@ -225,7 +225,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string/>
+             <string>8e-6</string>
             </property>
            </widget>
           </item>
@@ -427,7 +427,7 @@
              <string>Záporná hodnota znamená čerpání.</string>
             </property>
             <property name="text">
-             <string/>
+             <string>.05</string>
             </property>
            </widget>
           </item>
@@ -455,7 +455,7 @@
              <string>Záporná hodnota znamená čerpání.</string>
             </property>
             <property name="text">
-             <string/>
+             <string>-.05</string>
             </property>
            </widget>
           </item>
@@ -493,7 +493,7 @@
            <string>Vzdálenost hydrogeologických vrtů.</string>
           </property>
           <property name="text">
-           <string/>
+           <string>20</string>
           </property>
          </widget>
         </item>
@@ -529,7 +529,7 @@
            <string>Hloubka hladiny podzemní vody pod terénem.</string>
           </property>
           <property name="text">
-           <string/>
+           <string>5</string>
           </property>
          </widget>
         </item>
@@ -775,6 +775,51 @@
         </item>
        </layout>
       </widget>
+     </widget>
+     <widget class="QLabel" name="label_64">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>350</y>
+        <width>81</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Transmisivita:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_transmisivita">
+      <property name="geometry">
+       <rect>
+        <x>450</x>
+        <y>350</y>
+        <width>81</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Procento proudnic, které skončí v cílovém vrtu.</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_65">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>350</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/d&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_4">

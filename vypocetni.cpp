@@ -164,25 +164,28 @@ int getLayer(double Z)
 
 double track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, EndPoint *ep)
 {
-	double T;
+    double TT;
 	
-    track_point(x0, y0, z0, krok, X, Y, &T, ep);
+    track_point(x0, y0, z0, krok, X, Y, &TT, ep);
 	
-	return T;
+    return TT;
 }
 
-void track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, double *T, EndPoint *ep)
+void track_point(double x0, double y0, double z0, double krok, vector<double> *X, vector<double> *Y, double *TT, EndPoint *ep)
 {
 	X->clear();
 	Y->clear();
-	*T = 0;
+    *TT = 0;
 
     X->reserve(10000);
     Y->reserve(10000);
 
     if(!logfile.is_open())
         logfile.open("log.txt",ios_base::app);
-
+/*    logfile << "Vstupni data pro proudnici:" << endl;
+    logfile << "start: [ " << x0 << ", " << y0 << ", " << z0 << "]" << endl;
+    logfile << "krok = " << krok << endl;
+*/
     if(fabs(krok) == 0)
     {
         logfile << "track_point: varovani: krok = 0 (asi je Q = 0)." << endl;
@@ -194,6 +197,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	double K = getK(z0);
 
     unsigned int maxidx = int(10*L/fabs(krok));
+    //logfile << "maxidx = 10*L/krok = " << maxidx << endl;
 
 	double l[2];
 	
@@ -213,6 +217,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 
 		v(x, y, K, &vx, &vy); // slozky obj. hustoty toku
         vel = sqrt(vx*vx+vy*vy);
+
         /*if(vel < fabs(krok)/(3600*24*365.25)) // kdyz krok urazi za rok...
         {
             logfile << "track_point: trajectory terminated: negligible flow" << endl;
@@ -243,8 +248,8 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
         if(X->size() > 2) {
         if( sqrt(pow((*X)[X->size()-3]-(*X)[X->size()-1],2) + pow((*Y)[Y->size()-3]-(*Y)[Y->size()-1],2)) < krok) // ah, the evil of wrapping yourself around a watershed!
         {
-            logfile << "track_point: trajectory terminated: oscillating" << endl;
-            logfile << "Starting point: [ " << x0 << ", " << y0 << ", " << z0 << "]." << endl;
+//            logfile << "track_point: trajectory terminated: oscillating" << endl;
+//            logfile << "Starting point: [ " << x0 << ", " << y0 << ", " << z0 << "]." << endl;
             // a odstranit posledni dva body:
             X->pop_back();
             X->pop_back();
@@ -256,14 +261,16 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
         }}
         dx = vx * dt;
         dy = vy * dt; // prevedeno na vektor delky "krok"
-		
+//    logfile << "vx = " << vx << ", vy = " << vy << endl;
+    //logfile << "sgn "<< Q[0] << " = " << sgn(Q[0]) << ", sgn "<< Q[1] <<" = " << sgn(Q[1]) << endl;
+//    logfile << "dx = " << dx << ", dy = " << dy << endl;
 		x+= dx; // popojit o krok
 		y+= dy;
-		(*T)+= dt;
+        (*TT)+= dt;
 
 		l[0] = sqrt(x*x+y*y); // vzdalenost sledovane castice od prvni/druhe studny
 		l[1] = sqrt((x-L)*(x-L)+y*y);
-
+//      logfile << "l[]: " << l[0] << ", " << l[1] << endl;
         podm_studna = (l[0]<r[0]) || (l[0] < fabs(krok)) || (l[1]<r[1]) || (l[0] < fabs(krok));
         podm_dosah = (l[0] > R[0]*.99) || (l[1] > R[1]*.99) || (l[0] > R[0]-1.5*krok) || (l[1] > R[1]-1.5*krok);
 
@@ -275,21 +282,24 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
             if(podm_dosah)
                 *ep = range;
         }
-
-
+/*
+        logfile << "ukonceni: ";
+        switch(*ep) {
+            case(well) : logfile << "well"; break;
+            case(watershed) : cout << "watershed"; break;
+            case(range) : cout << "range"; break;
+            case(other) : cout << "other"; break;
+        }
+        logfile << " na souradnicich [" << (*X)[X->size() - 1] << ";" << (*Y)[Y->size() - 1] << "]" << endl;
+*/
     } while ( !(podm_studna || podm_dosah) );
 
     if(X->size() < 3)
     {
         X->clear();
         Y->clear();
-        *T = 0;
+        *TT = 0;
     }
-
-    double porovitost = .25;
-
-    *T *= porovitost;
-
 }
 
 void simple_track_point(double x0, double y0, double krok, vector<double> *X, vector<double> *Y) // trajektorie konci, jakmile se dostaneme do vrtu
@@ -493,12 +503,13 @@ void logInput()
 
     logfile << "Hydrogeologický profil (zdola nahoru, z=0 je podloží):" << endl;
     logfile << "Počet načtených vrstev: N = " << N << endl << endl;
-    logfile << "z[0] = " << z[0] << " m" << endl;
-    for(int i = 0; i < N; i++)
+
+    for(int i = N-1; i >= 0; i--)
     {
-        logfile << "K[" << i+1 <<"] = " << K[i] << " m/s" << endl;
         logfile << "z[" << i+1 <<"] = " << z[i+1] << " m" << endl;
+        logfile << "K[" << i+1 <<"] = " << K[i] << " m/s" << endl;
     }
+    logfile << "z[0] = " << z[0] << " m" << endl;
     logfile << endl << "Puvodni/prirozena hpv: H = " << H << " m" << endl << "se nachazi ve vrstve c. " << getLayer(H)+1 << "." << endl;
 
     logfile << endl;

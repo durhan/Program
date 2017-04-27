@@ -575,6 +575,8 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
 
+    logInput();
+
     casy.clear();
     delky.clear();
 
@@ -632,7 +634,7 @@ void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
                 continue;
 
             //zaznamenat "cestovni cas" trajektorie, pokud skoncila v nekterem vrtu
-            if ((Q[j] > 0) && (Q[1-j] <=0)) { // sbirame casy jen ze zdrojove studny a jen pokud ta druha taky neni zdrojova
+            if ((Q[j] > 0) && (Q[1-j] < 0)) { // sbirame casy jen ze zdrojove studny a jen pokud ta druha je nor
                 pocet_proudnic++;
                 if(konec == well) {
                     //casy.push_back(t/3600/24); //rovnou prevod na dny
@@ -899,12 +901,15 @@ bool MainWindow::readLayers()
     for(int i=0; i < n; i++)
         T+= K[i]*d[i];
 
-    double dT = K[n]*(H - z[n]);
+    double dT = K[n-1]*(z[n] - H);
+
     if(dT < 0)
     {
         logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
     }
-    T+=dT;
+    T-=dT;
+
+    ui->label_transmisivita->setText(loc.toString(T*24*3600,'g',2)); // prevod na m2/d
 
     return true;
 }
@@ -991,6 +996,8 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         return;
     }
 
+    // nebrat to s Q=0;
+
     bool ok = false;
 
     QLocale loc(QLocale::system());
@@ -1025,6 +1032,8 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         //double sigma = sqrt(4*D*casy[i]); // v metrech
         double sigma = sqrt(4 * a * delky[i]);
         //cout << i << "\t" << casy[i] << "\t" << delky[i] << "\t" << sigma << endl;
+        double kobrfaktor = 1; // very unproudly
+        porovitost*= kobrfaktor;
 
         newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] + 2*sigma));
         newT.push_back(casy[i] * porovitost * delky[i] / (delky[i] + sigma));
