@@ -1011,6 +1011,10 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     if(ui->lineEdit_n->text().isEmpty() || !ok)
         porovitost = .2;
 
+    cout << "casy.size() = " << casy.size() << endl;
+    cout << "a = " << a << " m" << endl;
+    cout << "n = " << porovitost << endl;
+
     newT.clear();
     newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10 + 1); // *9; +1 kvuli std::sort
 
@@ -1083,6 +1087,8 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         return;
     }
 
+    cout << "after TRIM: newT.size() = " << newT.size() << endl;
+
     // spocitat histogram:
 
     int pocet_kategorii = loc.toInt(ui->lineEdit_pkat->text(), &ok);
@@ -1092,11 +1098,11 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
     double rozpeti = newT[newT.size()-1] - newT[0];
-/*
+//*
     cout << endl << "histogram -------------------" << endl;
     cout << "rozpeti = " << rozpeti << endl;
     cout << "pocet_kategorii = " << pocet_kategorii << endl;
-*/
+//*/
 
     int kategorie = 0;
     for(unsigned int i = 0; i < newT.size(); i++)
@@ -1115,7 +1121,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         double max = rozpeti / pocet_kategorii * (kategorie+1);
 
         double val = 100.0 * hist[kategorie]/old_size;
-        //cout << kategorie << ". : (" << min << "; " << max << "> ...... " << val << endl;
+    cout << kategorie << ". : (" << min << "; " << max << "> ...... " << val << endl;
         H.push_back(QwtIntervalSample(val, min, max));
     }
 
@@ -1124,15 +1130,28 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     // vynest tracer test
 
+    cout << "pointer pred: " << grafTracer << endl;
+    cout << "pointer kam: " << ui << endl;
+
+
 
     if(grafTracer == NULL) {
-        grafTracer = new QwtPlot(ui->widgetTracer);
-        grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
+        grafTracer = new QwtPlot(QwtText("Graf hypotetické stopovací zkoušky"));
+        //grafTracer = new QwtPlot(ui->widgetTracer);
+        cout << "kriticky bod za nami" << endl;
+        grafTracer->setTitle("");
         grafTracer->setCanvasBackground(Qt::white);
         grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
         grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
+        //ui->widgetTracer->layout()->addWidget(grafTracer);
     }
+
+    cout << "pointer po:   " << grafTracer << endl;
+
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
+
+    cout << "detach done." << endl;
+
     //grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
     //grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
 
