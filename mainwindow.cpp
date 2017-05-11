@@ -55,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
+
     ui->lineEdit->setValidator(new QDoubleValidator(this));
     ui->lineEdit_2->setValidator(new QDoubleValidator(this));
     ui->lineEdit_3->setValidator(new QDoubleValidator(this));
@@ -1072,18 +1074,28 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     // trim:
     double max_T = loc.toDouble(ui->lineEdit_maxt->text(), &ok);// * 24 * 3600;
+    cout << "max_T pred = " << max_T << endl;
 
     if(ui->lineEdit_maxt->text().isEmpty() || !ok)
         max_T = newT[newT.size()-1]; // nic neuseknem
 
+    cout << "max_T po   = " << max_T << endl;
+
     unsigned int old_size = newT.size();
 
-    while(newT[newT.size()-1] > max_T)
+    cout << "old_size = " << old_size << endl;
+
+    int popped = 0;
+    while(newT[newT.size()-1] > max_T) {
+        popped++;
         newT.pop_back();
+    }
+
+    cout << "popped = " << popped << endl;
 
     if(newT.size() == 0)
     {
-        QMessageBox::critical(NULL, "Chyba","Maximální čas pro graf je příliš malý - zvětšete ho.");
+        QMessageBox::critical(NULL, "Chyba", "Maximální čas pro graf je příliš malý - zvětšete ho.");
         return;
     }
 
@@ -1092,11 +1104,18 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     // spocitat histogram:
 
     int pocet_kategorii = loc.toInt(ui->lineEdit_pkat->text(), &ok);
+    cout << "pocet_kategorii = " << pocet_kategorii << endl;
 
     if(ui->lineEdit_pkat->text().isEmpty() || !ok)
         pocet_kategorii = 60;
 
+    cout << "pocet_after     = " << pocet_kategorii << endl;
+
+    for(int i = 0; i < newT[newT.size()-1]; i++)
+        cout << "newT [" << i << "] = " << newT[i] << endl;
+
     int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
+
     double rozpeti = newT[newT.size()-1] - newT[0];
 //*
     cout << endl << "histogram -------------------" << endl;
@@ -1104,18 +1123,16 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     cout << "pocet_kategorii = " << pocet_kategorii << endl;
 //*/
 
-    int kategorie = 0;
     for(unsigned int i = 0; i < newT.size(); i++)
     {
-        double horni_mez_kategorie = rozpeti / pocet_kategorii * (kategorie+1);
-        if(newT[i] >= horni_mez_kategorie)
-            kategorie++;
-        hist[kategorie]++;
+        // zjistit index kategorie, do ktere prvek spada:
+        int idx = floor(newT[i]/rozpeti * pocet_kategorii);
+        hist[idx]++;
     }
 
     // prevest na relativni cetnosti:
     QVector <QwtIntervalSample> H;
-    for(kategorie = 0; kategorie < pocet_kategorii; kategorie++)
+    for(int kategorie = 0; kategorie < pocet_kategorii; kategorie++)
     {
         double min = rozpeti / pocet_kategorii * kategorie;
         double max = rozpeti / pocet_kategorii * (kategorie+1);
@@ -1130,19 +1147,16 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     // vynest tracer test
 
-    cout << "pointer pred: " << grafTracer << endl;
-    cout << "pointer kam: " << ui << endl;
-
-
 
     if(grafTracer == NULL) {
-        grafTracer = new QwtPlot(QwtText("Graf hypotetické stopovací zkoušky"));
-        //grafTracer = new QwtPlot(ui->widgetTracer);
+        //grafTracer = new QwtPlot(QwtText("Graf hypotetické stopovací zkoušky"));
+        grafTracer = new QwtPlot(ui->widgetTracer);
         cout << "kriticky bod za nami" << endl;
-        grafTracer->setTitle("");
+        grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
         grafTracer->setCanvasBackground(Qt::white);
         grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
         grafTracer->setAxisTitle(QwtPlot::yLeft,"relativní četnost [%]");
+        //this->layout()->addWidget(grafTracer);
         //ui->widgetTracer->layout()->addWidget(grafTracer);
     }
 
