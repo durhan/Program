@@ -1066,7 +1066,9 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     }
 
     // setridit
+//    cout << "size pred tridenim: " << newT.size() << endl;
     std::sort(newT.begin(),newT.end());
+//    cout << "size po trideni: " << newT.size() << endl;
 
     // prevod na dny
     for(unsigned int i = 0; i < newT.size(); i++)
@@ -1074,16 +1076,16 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     // trim:
     double max_T = loc.toDouble(ui->lineEdit_maxt->text(), &ok);// * 24 * 3600;
-    cout << "max_T pred = " << max_T << endl;
+//    cout << "max_T pred = " << max_T << endl;
 
     if(ui->lineEdit_maxt->text().isEmpty() || !ok)
         max_T = newT[newT.size()-1]; // nic neuseknem
 
-    cout << "max_T po   = " << max_T << endl;
+//    cout << "max_T po   = " << max_T << endl;
 
     unsigned int old_size = newT.size();
 
-    cout << "old_size = " << old_size << endl;
+//    cout << "old_size = " << old_size << endl;
 
     int popped = 0;
     while(newT[newT.size()-1] > max_T) {
@@ -1091,7 +1093,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         newT.pop_back();
     }
 
-    cout << "popped = " << popped << endl;
+//    cout << "popped = " << popped << endl;
 
     if(newT.size() == 0)
     {
@@ -1099,25 +1101,29 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         return;
     }
 
-    cout << "after TRIM: newT.size() = " << newT.size() << endl;
+//    cout << "new size = " << newT.size() << endl;
 
     // spocitat histogram:
 
     int pocet_kategorii = loc.toInt(ui->lineEdit_pkat->text(), &ok);
-    cout << "pocet_kategorii = " << pocet_kategorii << endl;
+//    cout << "pocet_kategorii = " << pocet_kategorii << endl;
 
     if(ui->lineEdit_pkat->text().isEmpty() || !ok)
         pocet_kategorii = 60;
 
     cout << "pocet_after     = " << pocet_kategorii << endl;
 
-    for(int i = 0; i < newT[newT.size()-1]; i++)
-        cout << "newT [" << i << "] = " << newT[i] << endl;
+//    for(int i = 0; i < newT[newT.size()-1]; i++)
+//        cout << "newT [" << i << "] = " << newT[i] << endl;
 
     int hist[pocet_kategorii] = {}; // {[0..pocet_kategorii] = 0}
 
-    double rozpeti = newT[newT.size()-1] - newT[0];
-//*
+//    cout << "min = " << newT[0] << endl;
+//    cout << "max = " << newT[newT.size()-1] << endl;
+
+    //double rozpeti = newT[newT.size()-1] - newT[0];
+    double rozpeti = newT[newT.size()-1];
+/*
     cout << endl << "histogram -------------------" << endl;
     cout << "rozpeti = " << rozpeti << endl;
     cout << "pocet_kategorii = " << pocet_kategorii << endl;
@@ -1127,6 +1133,9 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     {
         // zjistit index kategorie, do ktere prvek spada:
         int idx = floor(newT[i]/rozpeti * pocet_kategorii);
+//        if(i % 20 == 0)
+//            cout << "i=" << i << "\t idx = " << idx << endl;
+
         hist[idx]++;
     }
 

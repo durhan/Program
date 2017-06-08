@@ -60,7 +60,7 @@
              <enum>QFrame::Box</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Hloubky vrstev&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Hloubky bází vrstev&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -91,7 +91,7 @@
              <string>Hloubka báze nejsvrchnější vrstvy.</string>
             </property>
             <property name="text">
-             <string>4</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -115,7 +115,7 @@
              <string/>
             </property>
             <property name="text">
-             <string>4e-4</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -146,7 +146,7 @@
              <string>Hloubka báze 2. vrstvy.</string>
             </property>
             <property name="text">
-             <string>10</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -170,7 +170,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>10e-6</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -201,7 +201,7 @@
              <string>Hloubka báze vrstvy.</string>
             </property>
             <property name="text">
-             <string>20</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -225,7 +225,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>8e-6</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -427,7 +427,7 @@
              <string>Záporná hodnota znamená čerpání.</string>
             </property>
             <property name="text">
-             <string>.05</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -455,7 +455,7 @@
              <string>Záporná hodnota znamená čerpání.</string>
             </property>
             <property name="text">
-             <string>-.05</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -493,7 +493,7 @@
            <string>Vzdálenost hydrogeologických vrtů.</string>
           </property>
           <property name="text">
-           <string>20</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -529,7 +529,7 @@
            <string>Hloubka hladiny podzemní vody pod terénem.</string>
           </property>
           <property name="text">
-           <string>5</string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -1292,7 +1292,7 @@
        <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
       </property>
       <property name="text">
-       <string>100</string>
+       <string>365</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
