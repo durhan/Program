@@ -989,6 +989,12 @@ int MainWindow::readN()
 
 void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 {
+
+    if(sgn(Q[0]) != -sgn(Q[1]))
+    {
+        QMessageBox::critical(NULL,"Chyba","Tuto akci lze provést, jen pokud je jeden z vrtů čerpaný a druhý nalévaný.");
+        return;
+    }
     // spocitat hodnoty do grafu pro tracer test:
 
     if(casy.size() == 0)
@@ -1201,6 +1207,12 @@ void MainWindow::on_pushButton_13_clicked()
 
     if(newT.size() < 3) // kdyz nejsou spocitane zadne lepsi casy, ulozime aspon zaklad - stredni casy na proudnicich
         ptr = &casy;
+
+    if(ptr->size() == 0)
+    {
+        QMessageBox::critical(NULL,"Chyba","Není co ukládat - vrty nespojuje žádná proudnice.");
+        return;
+    }
 
     QString fname = QFileDialog::getSaveFileName(this,"Uložit jako",".","*.txt");
 
