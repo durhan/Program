@@ -571,6 +571,7 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 
 void MainWindow::on_startProudnice_clicked() // TAB: PROUDNICE A TRACKING: grafy
 {
+
     ui->startProudnice->setText("Čekejte...");
     this->repaint();
 
@@ -992,12 +993,11 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 {
 
 
-    if((sgn(Q[0]) != -sgn(Q[1])) || (Q[0] == Q[1] == 0))
+    if((sgn(Q[0]) != -sgn(Q[1])) || ((Q[0] == 0) && (Q[1] == 0)))
     {
         QMessageBox::critical(NULL,"Chyba","Tuto akci lze provést, jen pokud je jeden z vrtů čerpaný a druhý nalévaný.");
         return;
     }
-    // spocitat hodnoty do grafu pro tracer test:
 
     if(casy.size() == 0)
     {
@@ -1006,7 +1006,8 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         return;
     }
 
-    // nebrat to s Q=0;
+    // spocitat hodnoty do grafu pro tracer test:
+
 
     bool ok = false;
 
