@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -36,7 +36,7 @@
         <x>10</x>
         <y>10</y>
         <width>351</width>
-        <height>431</height>
+        <height>441</height>
        </rect>
       </property>
       <property name="title">
@@ -48,7 +48,7 @@
          <x>0</x>
          <y>20</y>
          <width>341</width>
-         <height>401</height>
+         <height>411</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -356,6 +356,17 @@
         </item>
         <item>
          <widget class="QPushButton" name="pushButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="toolTip">
            <string/>
           </property>
@@ -482,6 +493,11 @@
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <item>
          <widget class="QLabel" name="label_39">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Vzdálenost:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
@@ -518,6 +534,11 @@
        <layout class="QHBoxLayout" name="horizontalLayout_11">
         <item>
          <widget class="QLabel" name="label_41">
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
           <property name="text">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Hladina:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
@@ -552,15 +573,21 @@
         <height>61</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="text">
-       <string>Odhad snížení</string>
+       <string>Transmisivita
+a odhad snížení</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_9">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>450</y>
+        <x>20</x>
+        <y>470</y>
         <width>151</width>
         <height>61</height>
        </rect>
@@ -572,8 +599,8 @@
      <widget class="QPushButton" name="pushButton_10">
       <property name="geometry">
        <rect>
-        <x>180</x>
-        <y>450</y>
+        <x>190</x>
+        <y>470</y>
         <width>151</width>
         <height>61</height>
        </rect>
@@ -779,20 +806,28 @@
      <widget class="QLabel" name="label_64">
       <property name="geometry">
        <rect>
-        <x>370</x>
+        <x>390</x>
         <y>350</y>
         <width>81</width>
         <height>21</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <property name="text">
        <string>Transmisivita:</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
       </property>
      </widget>
      <widget class="QLabel" name="label_transmisivita">
       <property name="geometry">
        <rect>
-        <x>450</x>
+        <x>480</x>
         <y>350</y>
         <width>81</width>
         <height>20</height>
@@ -811,11 +846,16 @@
      <widget class="QLabel" name="label_65">
       <property name="geometry">
        <rect>
-        <x>540</x>
+        <x>570</x>
         <y>350</y>
         <width>51</width>
         <height>21</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/d&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

@@ -13,6 +13,8 @@ double Q[2], r[2], R[2], s[2];
 double L, T, H;
 ofstream logfile;//("log.txt",ios_base::ate);
 
+// bool first_case = true;
+
 //int getLayer(double Z);
 void gradG(double x, double y, double *dGdx, double *dGdy);
 double IntegralOverOneLayer(double a, double b, double k, double h);
@@ -56,6 +58,10 @@ double wellDrawdown(int idx)
         logfile << "wellDrawdown: bad parameter value!" << endl;
         return 0.0;
     }
+
+    if(Q[idx] == 0)
+        return 0.0;
+
     return (H - hydraulic_head(fabs(idx*L - r[idx]),0)); // mwahaha! ... :) vyuzivam toho, ze studna[0] ma vzdycky souradnice [0,0] a druha [L,0]
 }
 
@@ -196,7 +202,7 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 	double y = y0;
 	double K = getK(z0);
 
-    unsigned int maxidx = int(10*L/fabs(krok));
+    //unsigned int maxidx = int(10*L/fabs(krok));
     //logfile << "maxidx = 10*L/krok = " << maxidx << endl;
 
 	double l[2];
@@ -214,9 +220,12 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
 		X->push_back(x);
 		Y->push_back(y);
 		
-
 		v(x, y, K, &vx, &vy); // slozky obj. hustoty toku
         vel = sqrt(vx*vx+vy*vy);
+
+
+        logfile << X->size() << "# \t v = (" << vx << ", " << vy << ")" << endl;
+
 
         /*if(vel < fabs(krok)/(3600*24*365.25)) // kdyz krok urazi za rok...
         {
@@ -232,14 +241,19 @@ void track_point(double x0, double y0, double z0, double krok, vector<double> *X
         */
         dt = krok / vel; // skalovat vektor v na delku kroku
 
-        if((X->size() > maxidx) || (X->size() == X->max_size()))
+        if((X->size()*fabs(krok) > 2*3.15*(10*L)) || (X->size() == X->max_size()))
         {
             logfile << "track_point: trajectory terminated: suspiciously long" << endl;
             logfile << "x = " << x << endl;
             logfile << "y = " << y << endl;
-            logfile << "v = " << vel << endl;
+            logfile << "|v| = " << vel << endl;
             logfile << "Starting point: [ " << x0 << ", " << y0 << ", " << z0 << "]." << endl;
-            if(ep != NULL)
+ /*           if(first_case) {
+                for(int kk = 0; kk < X->size(); kk++)
+                    logfile << "Point #" << kk << ": [ " << (*X)[X->size()-1] << ", " << (*Y)[Y->size()-1] << ", " << z0 << "]." << endl;
+                first_case = false;
+            }
+*/            if(ep != NULL)
                 *ep = other;
             return;
         }

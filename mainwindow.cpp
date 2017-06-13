@@ -474,13 +474,13 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     //polointeligentni urceni mezi z:
     double arr[3] = { H, hydraulic_head(r[0],0), hydraulic_head(L+r[1],0) };
 
-    cout << "H = " << arr[0] << "\t" << "h[0] = " << arr[1] << "\t" << "h[1] = " << arr[2] << endl;
+//    cout << "H = " << arr[0] << "\t" << "h[0] = " << arr[1] << "\t" << "h[1] = " << arr[2] << endl;
     std::sort(arr,arr+3);
 
     double zmin = arr[0];
     double zmax = arr[2];
 
-    cout << "zmin = " << zmin << endl << "zmax = " << zmax << endl;
+//    cout << "zmin = " << zmin << endl << "zmax = " << zmax << endl;
     SpectrogramData *obsah = new SpectrogramData();
     obsah->setInterval( Qt::XAxis, QwtInterval( xmin, xmax ) );
     obsah->setInterval( Qt::YAxis, QwtInterval( ymin, ymax ) );
@@ -553,12 +553,12 @@ void MainWindow::on_pushButton_8_clicked() //dopočítáme snížení
 {
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
-
+/*
   if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
   {
       QMessageBox::warning(NULL,"Chyba!","Zadejte obě vydatnosti!");
       return;
-  }
+  }*/
     s[0]=wellDrawdown(0);
     s[1]=wellDrawdown(1);
 
@@ -899,11 +899,12 @@ bool MainWindow::readLayers()
     d[4] = z[5] - z[4];
 
     // transmisivita kolektoru
+
     T = 0;
-    for(int i=0; i < n; i++)
+    for(int i=0; i <= n; i++)
         T+= K[i]*d[i];
 
-    double dT = K[n-1]*(z[n] - H);
+    double dT = K[n]*(z[n+1] - H);
 
     if(dT < 0)
     {
@@ -911,7 +912,7 @@ bool MainWindow::readLayers()
     }
     T-=dT;
 
-    ui->label_transmisivita->setText(loc.toString(T*24*3600,'g',2)); // prevod na m2/d
+    ui->label_transmisivita->setText(loc.toString(T*24*3600)); // prevod na m2/d
 
     return true;
 }
@@ -926,7 +927,7 @@ bool MainWindow::readWells()
 
     if(ui->lineEdit_11->text().isEmpty() && ui->lineEdit_14->text().isEmpty())
     {
-        QMessageBox::critical(NULL,"Chyba!","Musí být zadaná alespoň jedna vydatnost (druhá se dá spočítat, pokud pro ni zadáte snížení).");
+        QMessageBox::warning(NULL,"Varování!","Pro odhad snížení by měla být zadaná vydatnost.");
         //return false;
     }
 
@@ -990,7 +991,8 @@ int MainWindow::readN()
 void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 {
 
-    if(sgn(Q[0]) != -sgn(Q[1]))
+
+    if((sgn(Q[0]) != -sgn(Q[1])) || (Q[0] == Q[1] == 0))
     {
         QMessageBox::critical(NULL,"Chyba","Tuto akci lze provést, jen pokud je jeden z vrtů čerpaný a druhý nalévaný.");
         return;
@@ -1018,10 +1020,6 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
 
     if(ui->lineEdit_n->text().isEmpty() || !ok)
         porovitost = .2;
-
-    cout << "casy.size() = " << casy.size() << endl;
-    cout << "a = " << a << " m" << endl;
-    cout << "n = " << porovitost << endl;
 
     newT.clear();
     newT.reserve(casy.size() * 9 * fabs(z[0] - z[N])*10 + 1); // *9; +1 kvuli std::sort
@@ -1117,7 +1115,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     if(ui->lineEdit_pkat->text().isEmpty() || !ok)
         pocet_kategorii = 60;
 
-    cout << "pocet_after     = " << pocet_kategorii << endl;
+//    cout << "pocet_after     = " << pocet_kategorii << endl;
 
 //    for(int i = 0; i < newT[newT.size()-1]; i++)
 //        cout << "newT [" << i << "] = " << newT[i] << endl;
@@ -1153,7 +1151,6 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         double max = rozpeti / pocet_kategorii * (kategorie+1);
 
         double val = 100.0 * hist[kategorie]/old_size;
-    cout << kategorie << ". : (" << min << "; " << max << "> ...... " << val << endl;
         H.push_back(QwtIntervalSample(val, min, max));
     }
 
@@ -1166,7 +1163,6 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
     if(grafTracer == NULL) {
         //grafTracer = new QwtPlot(QwtText("Graf hypotetické stopovací zkoušky"));
         grafTracer = new QwtPlot(ui->widgetTracer);
-        cout << "kriticky bod za nami" << endl;
         grafTracer->setTitle("Graf hypotetické stopovací zkoušky");
         grafTracer->setCanvasBackground(Qt::white);
         grafTracer->setAxisTitle(QwtPlot::xBottom,"čas [d]");
@@ -1175,11 +1171,7 @@ void MainWindow::on_pushButton_11_clicked() // GRAF: STOPOVACI ZKOUSKA
         //ui->widgetTracer->layout()->addWidget(grafTracer);
     }
 
-    cout << "pointer po:   " << grafTracer << endl;
-
     grafTracer->detachItems(QwtPlotItem::Rtti_PlotHistogram);
-
-    cout << "detach done." << endl;
 
     //grafTracer->setAxisScale(QwtPlot::yLeft, 0, 100);
     //grafTracer->setAxisScale(QwtPlot::xBottom, 0, 15);
