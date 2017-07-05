@@ -32,4 +32,5 @@ int sgn(double x);
 int getLayer(double Z);
 double getK(double Z);
 void logInput();
+double extrem();
 #endif

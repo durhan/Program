@@ -23,6 +23,58 @@ double GirPot(double r1, double r2);
 void gradh(double x, double y, double *dhdx, double *dhdy);
 void v(double x, double y, double k, double *vx, double *vy);
 
+/* vraci x lokalniho extremu hydraulicke vysky na spojnici mezi vrty
+ * extrem hleda numericky, gradientovou metodou s adaptivnim krokem... inteligentne
+ */
+
+/* extrem bude bliz studne s mensi |Q|
+ * smer, kterym se od vrtu ubiram ma znamenko:    - sgn(Q)
+ */
+
+double extrem()
+{ // bisekce intervalu - hledame nulu gradientu hydraulicke vysky
+    double a = 0 + r[0];
+    double b = L - r[1];
+    double x; // pro stred intervalu
+
+    double da, db, dx;
+    double odpad;
+
+    gradh(a, 0, &da, &odpad);
+    gradh(b, 0, &db, &odpad);
+
+    if(sgn(da) == sgn(db))
+        return 0;
+
+    if(sgn(da) == 0)
+        return a;
+
+    if(sgn(db) == 0)
+        return b;
+
+    do
+    {
+        x = (a + b) / 2;
+
+        gradh(a, 0, &da, &odpad);
+        gradh(x, 0, &dx, &odpad);
+        gradh(b, 0, &db, &odpad);
+
+        if(sgn(dx) == sgn(da))
+            a = x;
+
+        if(sgn(dx) == sgn(db))
+            b = x;
+
+        if(sgn(dx) == 0)
+            return x;
+
+    } while( fabs(b-a) > 1e-3 ); // dokud je interval delsi nez 1 mm
+
+    // kdyz uz jsme dostatecne blizko, prohlasime stred intervalu za reseni
+    return ((a + b) / 2);
+}
+
 int sgn(double x)
 {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
@@ -59,8 +111,8 @@ double wellDrawdown(int idx)
         return 0.0;
     }
 
-    if(Q[idx] == 0)
-        return 0.0;
+    //if(Q[idx] == 0)
+    //    return 0.0;
 
     return (H - hydraulic_head(fabs(idx*L - r[idx]),0)); // mwahaha! ... :) vyuzivam toho, ze studna[0] ma vzdycky souradnice [0,0] a druha [L,0]
 }

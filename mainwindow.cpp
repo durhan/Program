@@ -111,7 +111,10 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_2_clicked()
 {
     QLocale loc(QLocale::system());
-
+/*
+    s[0] = wellDrawdown(0);
+    s[1] = wellDrawdown(1);
+*/
     ui->lineEdit_13->setText(loc.toString(s[0],'f',2));
     ui->lineEdit_16->setText(loc.toString(s[1],'f',2));
 }
@@ -163,9 +166,9 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
         rez = new QwtPlot(ui->FrameHH);
         rez->setTitle("Řez hydraulické výšky v linii vrtů");
         rez->setCanvasBackground(Qt::white);
-        rez->setAxisTitle(QwtPlot::xBottom,"x[m]");
+        rez->setAxisTitle(QwtPlot::xBottom,"x [m]");
 
-        rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
+        rez->setAxisTitle(QwtPlot::yLeft,"h [m p. t.]");
         //rez->insertLegend(new QwtLegend);
 
         QwtPlotGrid *mrizka = new QwtPlotGrid();
@@ -179,15 +182,6 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
 
    QVector <QwtIntervalSample> X,Y,S1,S2;
 
-   //----------pridam hladinu
-   Y.push_back(QwtIntervalSample((1.5*L)+5,0,Ha));
-
-   QwtPlotHistogram *hladina = new QwtPlotHistogram ("hladina");
-   hladina->setSamples(Y);
-   hladina->setBaseline((-L/2)-5);
-   hladina->setOrientation(Qt::Orientation(1));
-   hladina->setPen(QColor(65,105,225),2,Qt::DashLine);
-   hladina->attach(rez);
 //--------geol rez
    for (int i=0; i<N; i++)
    {
@@ -200,6 +194,16 @@ void MainWindow::on_pushButton_clicked() // HYDROGEOLOGICKE SCHEMA
    vrstva->setPen(QColor(139,69,19,255),5);
    vrstva->attach(rez);
    }
+
+//----------pridam hladinu
+   Y.push_back(QwtIntervalSample((1.5*L)+5,-0.1,Ha));
+
+   QwtPlotHistogram *hladina = new QwtPlotHistogram ("hladina");
+   hladina->setSamples(Y);
+   hladina->setBaseline((-L/2)-5);
+   hladina->setOrientation(Qt::Orientation(1));
+   hladina->setPen(QColor(64,224,208),2,Qt::DashLine);
+   hladina->attach(rez);
 
 //-----pridam studny
    //cerr << "zet[N] = " << zet[N] << endl;
@@ -337,21 +341,24 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     //    delete rez;
 
     // rozmery pole: x: 2*L, y: whatever
-    int xDim = int(2*L);
-    double x[xDim], rezh[xDim];
+    //int xDim = int(4*L)+1+4; // 4 body navic na plastich studen
+    vector<double> x;
 
-    // mrizka souradnic a funkcni hodnoty
-    for(int i = 0; i < xDim; i++) {
-        x[i] = i - L/2;
-        if(isnan(x[i]))
-        {
-            if(!logfile.is_open()) logfile.open("log.txt",ios_base::app);
-            logfile << "ERROR: REZ: x[i] = nan" << endl;
-            logfile << "i    = " << i << endl;
-            logfile << "xDim = " << xDim << endl;
-            return;
-        }
-        rezh[i] = zet[N] - hydraulic_head(x[i],0.0);
+    // mrizka souradnic a funkcni hodnoty 
+    for(double xx = -L/2; xx <= 1.5*L; xx+= .25)
+        x.push_back(xx);
+
+    x.push_back( -r[0]);
+    x.push_back(  r[0]);
+    x.push_back(L-r[1]);
+    x.push_back(L+r[1]);
+
+    std::sort(x.begin(),x.end());
+
+    vector<double> rezh;
+
+    for(unsigned int i = 0; i < x.size(); i++) {
+        rezh.push_back(zet[N] - hydraulic_head(x[i],0.0));
     }
 
     // a ted to cele vynest:
@@ -361,8 +368,8 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
         rez->setTitle("Řez hydraulické výšky v linii vrtů");
         rez->setCanvasBackground(Qt::white);
         // set axis scale nesmi byt podminene novym grafem - jinak to ignoruje zmenu L ve vstupnich datech
-        rez->setAxisTitle(QwtPlot::xBottom,"x[m]");
-        rez->setAxisTitle(QwtPlot::yLeft,"h[m nad bází]");
+        rez->setAxisTitle(QwtPlot::xBottom,"x [m]");
+        rez->setAxisTitle(QwtPlot::yLeft,"h [m p. t.]");
         rez->insertLegend(new QwtLegend);
 
         QwtPlotGrid *mrizka = new QwtPlotGrid();
@@ -374,7 +381,7 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     rez->setAxisScale(QwtPlot::yLeft, zet[N], zet[0]);
 
     QwtPlotCurve *krivka = new QwtPlotCurve("hydraulická výška");
-    krivka->setSamples( x, rezh, xDim);
+    krivka->setSamples( QVector<double>::fromStdVector(x), QVector<double>::fromStdVector(rezh));
     krivka->setPen( Qt::blue, 1 );
     krivka->attach(rez);
 
@@ -382,20 +389,37 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
     rez->replot();
     rez->show();
 
-  if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
+  /*if ( ui->lineEdit_11->text().isEmpty() || ui->lineEdit_14->text().isEmpty())
   {
       QMessageBox::warning(NULL,"Chyba!","Zadejte obě vydatnosti!");
       return;
   }
+  */
+
+    // spocitat a zapsat snizeni:
     s[0]=wellDrawdown(0);
     s[1]=wellDrawdown(1);
 
     QLocale loc(QLocale::system());
 
     ui->label_43->setText(loc.toString(s[0],'f',2));
-    ui->label_52->setText(loc.toString(s[0],'f',2));
+    ui->label_52->setText(loc.toString(s[1],'f',2));
 
     ui->pushButton_2->setEnabled(true);
+
+    // spocitat a zapsat maximum/minimum hydraulicke vysky...
+
+    if(sgn(Q[0]) != sgn(Q[1])) // studny nejedou ve stejnem rezimu (cerpani/nalev/neaktivni)
+        return;
+
+    if((sgn(Q[0]) == 0) || (sgn(Q[1]) == 0)) // jedna ze studni neni aktivni
+        return;
+
+    double x0 = extrem();
+    double hydv = zet[N] - hydraulic_head(x0,0);
+
+    ui->label_x->setText(loc.toString(x0,'f',1));
+    ui->label_hydv->setText(loc.toString(hydv,'f',2));
 }
 
 void printout(double x[], int dim) // vypis pole pro manualni debug
@@ -411,16 +435,34 @@ void MainWindow::on_pushButton_4_clicked() // TAB: REZ HYDRAULICKE VYSKY, zmena 
 
     QLocale loc(QLocale::system());
 
-    double ymin = loc.toDouble(ui->hhymin->text());
-    double ymax = loc.toDouble(ui->hhymax->text());
+    double dolni = loc.toDouble(ui->hhymin->text());
+    double horni = loc.toDouble(ui->hhymax->text());
 
     if(ui->hhymin->text().isEmpty())
-        ymin = zet[N];
+        dolni = zet[N];
 
     if(ui->hhymax->text().isEmpty())
-        ymax = zet[0];
+        horni = zet[0];
 
-    rez->setAxisScale(QwtPlot::yLeft, ymin, ymax);
+    if(dolni == horni)
+    {
+        QMessageBox::warning(NULL,"Varování","Zadaná dolní mez je stejná jako horní.");
+        return;
+    }
+
+    if(dolni < horni) // horni ma mensi hloubku
+    {
+        QMessageBox::warning(NULL,"Varování","Zadaná dolní mez je NAD zadanou horní mezí. Zaměňuji meze.");
+        double pom = dolni;
+        dolni = horni;
+        horni = pom;
+
+        QString str = ui->hhymin->text();
+        ui->hhymin->setText(ui->hhymax->text());
+        ui->hhymax->setText(str);
+    }
+
+    rez->setAxisScale(QwtPlot::yLeft, dolni, horni);
     rez->replot();
 }
 
