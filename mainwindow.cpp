@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_9->setEnabled(false);
     ui->pushButton_10->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
+    ui->pushButton_2->setVisible(false);
 
     // vyplnit vychozi hodnoty (jen ty, kt. nejsou celociselne; kvuliva desetinne carce)
 
@@ -332,6 +333,12 @@ void MainWindow::on_pushButton_3_clicked() // TAB: REZ HYDRAULICKE VYSKY
 {
     if(!readLayers() || !readWells()) //zpusob, jak nacist data a rovnou skoncit, kdyz nejsou nactena
         return;
+
+    // smazat okynka
+    ui->label_43->clear();
+    ui->label_52->clear();
+    ui->label_x->clear();
+    ui->label_hydv->clear();
 
     on_pushButton_clicked(); //experimentalni
 
@@ -893,7 +900,7 @@ bool MainWindow::readLayers()
     H = z[N] - H;
 
     int n = getLayer(H);
-
+    //cerr << "n cerstve = " << n << endl;
     // pripad hodnoty H nad terenem / pod bazi - predpokladame napjate, tj. pocitame transmisivitu pres vsechny vrstvy:
     if(n==-1)
         n = N;
@@ -942,19 +949,32 @@ bool MainWindow::readLayers()
     d[4] = z[5] - z[4];
 
     // transmisivita kolektoru
-
     T = 0;
-    for(int i=0; i <= n; i++)
+
+    for(int i = 0; i < N; i++)
+    {
+        if(H >= z[i+1])
+            T+= K[i]*d[i];
+        if( (z[i] < H) && (H < z[i+1]) )
+            T+= K[i]*(H - z[i]);
+    }
+
+    /*
+    for(int i=0; i < n; i++)
         T+= K[i]*d[i];
 
-    double dT = K[n]*(z[n+1] - H);
+    double dT = K[n]*(H - z[n]);
 
     if(dT < 0)
     {
-        logfile << "CHYBA při počítání transmisivity! dT = " << dT << endl;
+        cerr << "CHYBA při počítání transmisivity! dT = " << dT << endl;
+        cerr << "n = " << n << endl;
+        cerr << "z[n] = " << z[n] << endl;
+        cerr << "H = " << H << endl;
+        cerr << "K[n] = " << K[n] << endl;
     }
-    T-=dT;
-
+    T+=dT;
+    */
     ui->label_transmisivita->setText(loc.toString(T*24*3600)); // prevod na m2/d
 
     return true;
