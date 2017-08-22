@@ -42,7 +42,7 @@ public:
 
     virtual double value( double x, double y ) const
     {
-        return hydraulic_head(x,y);
+        return (z[N] - hydraulic_head(x,y));
     }
 };
 
@@ -521,7 +521,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     double ymax = 1.0*ui->widgetMapa->height()/ui->widgetMapa->width() * L;
 
     //polointeligentni urceni mezi z:
-    double arr[3] = { H, hydraulic_head(r[0],0), hydraulic_head(L+r[1],0) };
+    double arr[3] = { z[N] - H, z[N] - hydraulic_head(r[0],0), z[N] - hydraulic_head(L+r[1],0) };
 
 //    cout << "H = " << arr[0] << "\t" << "h[0] = " << arr[1] << "\t" << "h[1] = " << arr[2] << endl;
     std::sort(arr,arr+3);
@@ -544,7 +544,7 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     graf->attach(mapa);
 
     //barvy
-    QwtLinearColorMap *barvy = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB);
+    QwtLinearColorMap *barvy = new QwtLinearColorMap(Qt::cyan, Qt::darkBlue, QwtColorMap::RGB);
     //barvy->addColorStop(H-.05,Qt::darkGreen);
     //barvy->addColorStop(H+.05,Qt::darkGreen);
     graf->setColorMap(barvy);
@@ -577,10 +577,10 @@ void MainWindow::on_pushButton_6_clicked() // TAB: MAPA: vypocet
     //_
     mapa->setAxisScale( QwtPlot::yRight, zmin, zmax);
     mapa->enableAxis(QwtPlot::yRight);
-    QwtLinearColorMap *barvy2 = new QwtLinearColorMap(Qt::darkBlue, Qt::cyan, QwtColorMap::RGB); // argh! podruhe ta sama QwtColorMap, ptz kopirovaci konstruktor je private a pouzit znova prvni mapu crashlo Skvost pri ukoncovani!
+    QwtLinearColorMap *barvy2 = new QwtLinearColorMap(Qt::cyan, Qt::darkBlue, QwtColorMap::RGB); // argh! podruhe ta sama QwtColorMap, ptz kopirovaci konstruktor je private a pouzit znova prvni mapu crashlo Skvost pri ukoncovani!
     mapa->axisWidget(QwtPlot::yRight)->setColorMap(graf->data()->interval(Qt::ZAxis), barvy2);
     mapa->axisWidget(QwtPlot::yRight)->setColorBarEnabled(true);
-    mapa->setAxisTitle(QwtPlot::yRight, "h [m]");
+    mapa->setAxisTitle(QwtPlot::yRight, "h [m p. t.]");
 
     // rozsah na osach ---------------------------------------------------
     mapa->setAxisScale(QwtPlot::xBottom, xmin, xmax);

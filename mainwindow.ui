@@ -88,7 +88,7 @@
           <item>
            <widget class="QLineEdit" name="lineEdit">
             <property name="toolTip">
-             <string>Hloubka báze nejsvrchnější vrstvy.</string>
+             <string/>
             </property>
             <property name="text">
              <string/>
@@ -143,7 +143,7 @@
              <bool>true</bool>
             </property>
             <property name="toolTip">
-             <string>Hloubka báze 2. vrstvy.</string>
+             <string/>
             </property>
             <property name="text">
              <string/>
@@ -198,7 +198,7 @@
              <bool>true</bool>
             </property>
             <property name="toolTip">
-             <string>Hloubka báze vrstvy.</string>
+             <string/>
             </property>
             <property name="text">
              <string/>
@@ -253,7 +253,7 @@
              <bool>true</bool>
             </property>
             <property name="toolTip">
-             <string>Hloubka báze vrstvy.</string>
+             <string/>
             </property>
             <property name="text">
              <string/>
@@ -308,7 +308,7 @@
              <bool>true</bool>
             </property>
             <property name="toolTip">
-             <string>Hloubka báze vrstvy.</string>
+             <string/>
             </property>
             <property name="text">
              <string/>
@@ -834,7 +834,7 @@ a odhad snížení</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Procento proudnic, které skončí v cílovém vrtu.</string>
+       <string/>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
@@ -940,7 +940,7 @@ a odhad snížení</string>
        </rect>
       </property>
       <property name="text">
-       <string>Změna mezí na svislé ose:</string>
+       <string>Změna mezí svislé osy:</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_45">
@@ -1209,7 +1209,7 @@ výšky</string>
        </rect>
       </property>
       <property name="text">
-       <string>Snížení na plášti studní:</string>
+       <string>Snížení na plášti:</string>
       </property>
      </widget>
     </widget>
@@ -1276,7 +1276,7 @@ výšky</string>
        </rect>
       </property>
       <property name="text">
-       <string>Exportovat stopovací zkoušku</string>
+       <string>Exportovat stopovací zk.</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_40">
@@ -1284,12 +1284,12 @@ výšky</string>
        <rect>
         <x>310</x>
         <y>50</y>
-        <width>211</width>
+        <width>251</width>
         <height>21</height>
        </rect>
       </property>
       <property name="text">
-       <string>Podíl nálevu odčerpaného druhou studnou:</string>
+       <string>Podíl nálevu odčerpaného cílovou studnou:</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_19">
@@ -1347,7 +1347,7 @@ výšky</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Procento proudnic, které skončí v cílovém vrtu.</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Procento proudnic, které končí v cílovém vrtu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
@@ -1405,7 +1405,7 @@ výšky</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+       <string/>
       </property>
       <property name="text">
        <string>0.1</string>
@@ -1424,7 +1424,7 @@ výšky</string>
        </rect>
       </property>
       <property name="text">
-       <string>Vynechat časy (trasy) delší než</string>
+       <string>Vynechat trasy delší než</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_maxt">
@@ -1437,7 +1437,7 @@ výšky</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+       <string/>
       </property>
       <property name="text">
        <string>365</string>
@@ -1482,7 +1482,7 @@ výšky</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+       <string/>
       </property>
       <property name="text">
        <string>60</string>
@@ -1501,7 +1501,7 @@ výšky</string>
        </rect>
       </property>
       <property name="text">
-       <string>Počet proudnic pro jednu studnu:</string>
+       <string>Počet proudnic (1 studna):</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_starty">
@@ -1546,7 +1546,7 @@ výšky</string>
        </rect>
       </property>
       <property name="toolTip">
-       <string>Pokud trvá výpočet proudnic příliš dlouho, je možné jej zkrátit proudloužením kroku; za cenu menší přesnosti.</string>
+       <string/>
       </property>
       <property name="text">
        <string>0.2</string>
